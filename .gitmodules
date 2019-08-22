@@ -1,0 +1,8 @@
+[submodule "lib/ffmpeg-webm"]
+	path = lib/ffmpeg-webm
+	url = https://git.ffmpeg.org/ffmpeg.git
+	branch = master
+[submodule "lib/ffmpeg-mp4"]
+	path = lib/ffmpeg-mp4
+	url = https://git.ffmpeg.org/ffmpeg.git
+	branch = master
