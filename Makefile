@@ -62,7 +62,14 @@ EMCC_COMMON_ARGS=\
 
 all: mp4
 
+docker-build:
+	docker build -t ffmpeg-wasm .
+
+docker: docker-build
+	docker run --rm -v `pwd`/dist:/opt ffmpeg-wasm /bin/sh -c "cp /app/ffmpeg-* /opt/"
+
 clean: clean-x264 clean-lame
+	rm -rf dist
 
 clean-x264:
 	cd lib/x264 && \
@@ -129,5 +136,5 @@ configure-mp4: $(MP4_SHARED_LIBS)
 	cp ffmpeg ffmpeg.bc
 
 mp4: configure-mp4
-	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.wasm
+	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.js
 
