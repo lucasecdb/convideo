@@ -6,3 +6,6 @@
 	path = lib/ffmpeg-mp4
 	url = https://git.ffmpeg.org/ffmpeg.git
 	branch = master
+[submodule "lib/x264"]
+	path = lib/x264
+	url = https://git.videolan.org/git/x264.git
