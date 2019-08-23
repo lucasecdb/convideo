@@ -11,6 +11,9 @@ COMMON_DECODERS = \
 MP4_MUXERS = mp4 mp3 null
 MP4_ENCODERS = libx264 libmp3lame aac
 MP4_PC_PATH = ../x264/dist/lib/pkgconfig
+MP4_SHARED_LIBS = \
+	lib/lame-3.100/dist/lib/libmp3lame.so \
+	lib/x264/dist/lib/libx264.so
 
 FFMPEG_COMMON_ARGS = \
 	--cc=emcc \
@@ -54,12 +57,19 @@ FFMPEG_COMMON_ARGS = \
 EMCC_COMMON_ARGS=\
 	--closure 1 \
 	-s TOTAL_MEMORY=67108864 \
-	-s OUTLINING_LIMIT=20000 \
-	-O3 --memory-init-file 0 \
+	-O3 \
+	--memory-init-file 0
 
 all: mp4
 
-libx264:
+clean: clean-x264 clean-lame
+
+clean-x264:
+	cd lib/x264 && \
+	rm -rf dist && \
+	make clean
+
+lib/x264/dist/lib/libx264.so:
 	cd lib/x264 && \
 	git reset --hard && \
 	patch -p1 < ../x264-configure.patch && \
@@ -83,7 +93,11 @@ libx264:
 	emmake make -j8 && \
 	emmake make install
 
-libmp3lame:
+clean-lame:
+	rm lib/lame.tar.gz && \
+	rm -rf lib/lame-3.100
+
+lib/lame-3.100/dist/lib/libmp3lame.so:
 	curl -s -L http://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz -o lib/lame.tar.gz && \
 	tar xfz lib/lame.tar.gz -C lib && \
 	cd lib/lame-3.100 && \
@@ -99,7 +113,7 @@ libmp3lame:
 	emmake make -j8 && \
 	emmake make install
 
-configure-mp4: libmp3lame libx264
+configure-mp4: $(MP4_SHARED_LIBS)
 	cd lib/ffmpeg-mp4 && \
 	git reset --hard && \
 	EM_PKG_CONFIG_PATH=$(MP4_PC_PATH) emconfigure ./configure \
@@ -111,8 +125,9 @@ configure-mp4: libmp3lame libx264
 	  --enable-libx264 \
 	  --extra-cflags="-I../lame-3.100/dist/include -I../x264/dist/include" \
 	  --extra-ldflags="-L../lame-3.100/dist/lib -L../x264/dist/lib" && \
-	emmake make -j8
+	emmake make -j8 && \
+	cp ffmpeg ffmpeg.bc
 
 mp4: configure-mp4
-	emcc lib/ffmpeg-mp4/ffmpeg $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.wasm
+	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.wasm
 
