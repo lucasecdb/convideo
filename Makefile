@@ -114,5 +114,5 @@ configure-mp4: libmp3lame libx264
 	emmake make -j8
 
 mp4: configure-mp4
-	emcc ffmpeg $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.wasm
+	emcc lib/ffmpeg-mp4/ffmpeg $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.wasm
 
