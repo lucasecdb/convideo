@@ -54,18 +54,23 @@ FFMPEG_COMMON_ARGS = \
 	--disable-xlib \
 	--disable-zlib
 
+PRE_JS = src/shell-pre.js
+POST_JS = src/shell-post.js
+
 EMCC_COMMON_ARGS=\
 	--closure 1 \
 	-s TOTAL_MEMORY=67108864 \
 	-O3 \
-	--memory-init-file 0
+	--memory-init-file 0 \
+	--pre-js $(PRE_JS) \
+	--post-js $(POST_JS)
 
 all: mp4
 
 docker-build:
 	docker build -t ffmpeg-wasm .
 
-docker: docker-build
+build: docker-build
 	docker run --rm -v `pwd`/dist:/opt ffmpeg-wasm /bin/sh -c "cp /app/ffmpeg-* /opt/"
 
 clean: clean-x264 clean-lame
