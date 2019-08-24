@@ -7,5 +7,5 @@
 git submodule update --init --recursive
 
 # build project
-docker build -t ffmpeg-wasm .
+make build
 ```
