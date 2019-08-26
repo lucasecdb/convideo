@@ -74,7 +74,7 @@ docker-build:
 	docker build -t ffmpeg-wasm .
 
 build: docker-build
-	docker run --rm -v `pwd`/dist:/opt ffmpeg-wasm /bin/sh -c "cp /app/ffmpeg-* /opt/"
+	docker run --rm -v `pwd`/dist:/app/dist ffmpeg-wasm /bin/sh -c "cp -R /app/out/* /app/dist/"
 
 clean: clean-x264 clean-lame
 	rm -rf dist
@@ -144,6 +144,7 @@ configure-mp4: $(MP4_SHARED_LIBS)
 	cp ffmpeg ffmpeg.bc
 
 mp4: configure-mp4
-	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.js
-	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -s EXPORT_ES6 -o ffmpeg-mp4.esm.js
+	mkdir out
+	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o out/ffmpeg-mp4.js
+	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -s EXPORT_ES6 -o out/ffmpeg-mp4.esm.js
 
