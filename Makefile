@@ -62,8 +62,11 @@ EMCC_COMMON_ARGS=\
 	-s TOTAL_MEMORY=67108864 \
 	-O3 \
 	--memory-init-file 0 \
-	--pre-js $(PRE_JS) \
-	--post-js $(POST_JS)
+	-s MODULARIZE \
+	-s NO_INVOKE_RUN \
+	-s ALLOW_MEMORY_GROWTH \
+	-s ENVIRONMENT=web \
+	-s EXPORT_NAME=ffmpeg
 
 all: mp4
 
@@ -142,4 +145,5 @@ configure-mp4: $(MP4_SHARED_LIBS)
 
 mp4: configure-mp4
 	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -o ffmpeg-mp4.js
+	emcc lib/ffmpeg-mp4/ffmpeg.bc $(MP4_SHARED_LIBS) $(EMCC_COMMON_ARGS) -s EXPORT_ES6 -o ffmpeg-mp4.esm.js
 
