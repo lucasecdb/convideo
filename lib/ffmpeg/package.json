@@ -1,0 +1,15 @@
+{
+  "name": "ffmpeg",
+  "scripts": {
+    "install": "napa",
+    "build": "docker run --rm -v $(pwd):/src trzeci/emscripten ./build.sh"
+ },
+  "napa": {
+    "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",
+    "libx264": "git+https://git.videolan.org/git/x264.git",
+    "libmp3lame": "http://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz"
+  },
+  "devDependencies": {
+    "napa": "^3.0.0"
+  }
+}
