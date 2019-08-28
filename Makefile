@@ -59,9 +59,7 @@ POST_JS = src/shell-post.js
 
 EMCC_COMMON_ARGS=\
 	--closure 1 \
-	-s TOTAL_MEMORY=67108864 \
 	-O3 \
-	--memory-init-file 0 \
 	-s MODULARIZE \
 	-s NO_INVOKE_RUN \
 	-s ALLOW_MEMORY_GROWTH \
