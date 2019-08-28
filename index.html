@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <body>
+    <button id="init">initialize ffmpeg</button>
+    <button id="run" disabled>run ffmpeg</button>
+    <script type="module">
+      import ffmpeg from './dist/ffmpeg-mp4.esm.js'
+
+      const initBtn = document.querySelector('#init')
+      const runBtn = document.getElementById('run')
+      let ffmpegInstance = null
+
+      initBtn.addEventListener('click', () => {
+        ffmpegInstance = ffmpeg({
+          locateFile: (path, prefix) => {
+            return `/dist/${prefix}${path}`
+          }
+        })
+        runBtn.disabled = false
+      })
+
+      runBtn.addEventListener('click', async () => {
+        ffmpegInstance.callMain()
+      })
+    </script>
+  </body>
+</html>
