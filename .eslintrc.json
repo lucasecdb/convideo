@@ -1,0 +1,12 @@
+{
+  "extends": "@lucasecdb",
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "rules": {
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/camelcase": "off"
+  }
+}
