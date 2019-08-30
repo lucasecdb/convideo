@@ -2,10 +2,9 @@
 
 ## Instructions
 
-```bash
-# init submodules
-git submodule update --init --recursive
+To startup this project, run the following
 
-# build project
-make build
+```bash
+yarn
+yarn start
 ```
