@@ -471,6 +471,18 @@ module.exports = function(webpackEnv) {
                 'sass-loader'
               ),
             },
+            {
+              // Emscripten modules don't work with Webpack's Wasm loader.
+              test: /\.wasm$/,
+              exclude: /_bg\.wasm$/,
+              // This is needed to make webpack NOT process wasm files.
+              // See https://github.com/webpack/webpack/issues/6725
+              type: 'javascript/auto',
+              loader: 'file-loader',
+              options: {
+                name: '[name].[hash:5].[ext]',
+              },
+            },
             // "file" loader makes sure those assets get served by WebpackDevServer.
             // When you `import` an asset, you get its (virtual) filename.
             // In production, they would get copied to the `build` folder.
