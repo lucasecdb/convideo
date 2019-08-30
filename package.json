@@ -9,6 +9,8 @@
     "lint": "tsc --noEmit && eslint --ext ts,tsx src"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
+    "file-selector": "^0.1.12",
     "react": "^16.9.0",
     "react-app-polyfill": "^1.0.2",
     "react-dom": "^16.9.0"
@@ -17,6 +19,7 @@
     "@babel/core": "7.5.5",
     "@lucasecdb/eslint-config": "^0.4.0",
     "@svgr/webpack": "4.3.2",
+    "@types/classnames": "^2.2.9",
     "@types/emscripten": "^1.38.0",
     "@types/jest": "24.0.18",
     "@types/node": "12.7.2",
@@ -44,6 +47,7 @@
     "jest-resolve": "24.8.0",
     "jest-watch-typeahead": "0.3.1",
     "mini-css-extract-plugin": "0.5.0",
+    "node-sass": "^4.12.0",
     "optimize-css-assets-webpack-plugin": "5.0.3",
     "pnp-webpack-plugin": "1.5.0",
     "postcss-flexbugs-fixes": "4.1.0",
