@@ -81,13 +81,25 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
     setDragActive(false)
     setDragTargets([])
 
-    const [file] = await fromEvent(evt.nativeEvent)
+    const [maybeFile] = await fromEvent(evt.nativeEvent)
 
-    if (!file) {
+    if (!maybeFile) {
       return
     }
 
-    onFile(file as File)
+    let file: File | null
+
+    if ('getAsFile' in maybeFile) {
+      file = maybeFile.getAsFile()
+    } else {
+      file = maybeFile
+    }
+
+    if (file == null) {
+      return
+    }
+
+    onFile(file)
   }
 
   return (
