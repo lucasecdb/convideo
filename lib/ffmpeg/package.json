@@ -7,7 +7,8 @@
   "napa": {
     "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",
     "libx264": "git+https://git.videolan.org/git/x264.git",
-    "libmp3lame": "http://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz"
+    "libmp3lame": "http://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz",
+    "zlib": "git+https://github.com/madler/zlib.git"
   },
   "devDependencies": {
     "napa": "^3.0.0"

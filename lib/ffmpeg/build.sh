@@ -19,8 +19,9 @@ png,mjpeg,\
 vorbis,opus,\
 mp3,ac3,aac,\
 ass,ssa,srt,webvtt"
+COMMON_MUXERS=matroska,avi,mov,flv,ogg,image2,null
 
-MP4_MUXERS=mp4,mp3,null
+MP4_MUXERS=mp4,mp3
 MP4_ENCODERS=libx264,libmp3lame,aac
 
 echo "=========================="
@@ -75,6 +76,20 @@ echo "Compiling lame done"
 echo "=========================="
 
 echo "=========================="
+echo "Compiling zlib"
+echo "=========================="
+(
+  cd node_modules/zlib
+  emconfigure ./configure \
+    --prefix=${PREFIX}/
+  emmake make -j8
+  emmake make install
+)
+echo "=========================="
+echo "Compiling zlib done"
+echo "=========================="
+
+echo "=========================="
 echo "Compiling ffmpeg"
 echo "=========================="
 (
@@ -107,6 +122,7 @@ echo "=========================="
     --disable-vdpau \
     $(eval echo --enable-decoder={$COMMON_DECODERS}) \
     $(eval echo --enable-demuxer={$COMMON_DEMUXERS}) \
+    $(eval echo --enable-muxer={$COMMON_MUXERS}) \
     --enable-protocol=file \
     $(eval echo --enable-filter={$COMMON_FILTERS}) \
     --disable-bzlib \
@@ -115,7 +131,7 @@ echo "=========================="
     --disable-lzma \
     --disable-securetransport \
     --disable-xlib \
-    --disable-zlib \
+    --enable-zlib \
     $(eval echo --enable-encoder={$MP4_ENCODERS}) \
     $(eval echo --enable-muxer={$MP4_MUXERS}) \
     --enable-libmp3lame \
@@ -135,6 +151,7 @@ echo "Generating bidings"
 echo "=========================="
 (
   emcc \
+    --bind \
     ${OPTIMIZE} \
     --closure 1 \
     -s MODULARIZE=1 \
@@ -142,9 +159,11 @@ echo "=========================="
     -s ALLOW_MEMORY_GROWTH=1 \
     -s 'EXPORT_NAME="ffmpeg"' \
     -o ffmpeg.js \
+    --std=c++11 \
     ${PREFIX}/lib/libmp3lame.so \
     ${PREFIX}/lib/libx264.so \
-    node_modules/ffmpeg/ffmpeg.bc
+    node_modules/ffmpeg/ffmpeg.bc \
+    ffmpeg.cpp
 )
 echo "=========================="
 echo "Generating bidings done"

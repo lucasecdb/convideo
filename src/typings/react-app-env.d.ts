@@ -64,3 +64,8 @@ declare module '*.module.sass' {
   const classes: { readonly [key: string]: string }
   export default classes
 }
+
+declare module '*.wasm' {
+  const src: string
+  export default src
+}
