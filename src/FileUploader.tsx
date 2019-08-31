@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React, { useRef, useState } from 'react'
 import { fromEvent } from 'file-selector'
 
+import * as t from './components/Typography'
 import styles from './FileUploader.module.scss'
 
 interface Props {
@@ -113,7 +114,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <p className={styles.intro}>
+      <t.Headline2 className={styles.intro}>
         Drag & drop, or{' '}
         <button className={styles.selectButton} onClick={handleFileSelect}>
           select a video
@@ -127,7 +128,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
           tabIndex={-1}
           onChange={handleFileChange}
         />
-      </p>
+      </t.Headline2>
     </div>
   )
 }

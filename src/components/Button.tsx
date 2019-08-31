@@ -1,18 +1,85 @@
 import classNames from 'classnames'
-import React from 'react'
+import React, { useRef } from 'react'
 
-import styles from './Button.module.scss'
+import { useRipple } from './Ripple'
 
-const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({
+const CSS_CLASSES = {
+  ROOT: 'mdc-button',
+  ICON: 'mdc-button__icon',
+  LABEL: 'mdc-button__label',
+  DENSE: 'mdc-button--dense',
+  RAISED: 'mdc-button--raised',
+  OUTLINED: 'mdc-button--outlined',
+  UNELEVATED: 'mdc-button--unelevated',
+}
+
+type ConditionalProps =
+  | { href: string } & React.AnchorHTMLAttributes<HTMLAnchorElement>
+  | React.ButtonHTMLAttributes<HTMLButtonElement>
+
+type Props = {
+  raised?: boolean
+  unelevated?: boolean
+  outlined?: boolean
+  dense?: boolean
+  disabled?: boolean
+  className?: string
+  icon?: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>
+  trailingIcon?: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>
+} & ConditionalProps
+
+const renderIcon = (
+  icon?: React.ReactElement<React.HTMLProps<HTMLOrSVGElement>>
+) =>
+  icon
+    ? React.cloneElement(icon, {
+        className: classNames(CSS_CLASSES.ICON, icon.props.className),
+      })
+    : null
+
+const Button: React.FC<Props> = ({
+  className = '',
+  raised = false,
+  unelevated = false,
+  outlined = false,
+  dense = false,
+  icon,
   children,
-  className,
+  trailingIcon,
+  style,
   ...props
 }) => {
-  const classes = classNames(className, styles.button)
+  const ref = useRef<any>(null)
+
+  const { rippleStyle, rippleClasses } = useRipple({ surfaceRef: ref })
+
+  const classes = classNames(CSS_CLASSES.ROOT, className, rippleClasses, {
+    [CSS_CLASSES.RAISED]: raised,
+    [CSS_CLASSES.UNELEVATED]: unelevated,
+    [CSS_CLASSES.OUTLINED]: outlined,
+    [CSS_CLASSES.DENSE]: dense,
+  })
+
+  const elementStyle = {
+    ...rippleStyle,
+    ...style,
+  }
+
+  if ('href' in props) {
+    return (
+      <a {...props} className={classes} ref={ref} style={elementStyle}>
+        {!trailingIcon ? renderIcon(icon) : null}
+        <span className={CSS_CLASSES.LABEL}>{children}</span>
+        {trailingIcon ? renderIcon(trailingIcon) : null}
+      </a>
+    )
+  }
 
   return (
-    <button className={classes} {...props}>
-      {children}
+    <button {...props} style={elementStyle} className={classes} ref={ref}>
+      {!trailingIcon ? renderIcon(icon) : null}
+      <span className={CSS_CLASSES.LABEL}>{children}</span>
+      {trailingIcon ? renderIcon(trailingIcon) : null}
     </button>
   )
 }

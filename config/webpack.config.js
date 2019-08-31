@@ -1,6 +1,5 @@
 'use strict'
 
-const fs = require('fs')
 const isWsl = require('is-wsl')
 const path = require('path')
 const webpack = require('webpack')
@@ -17,7 +16,6 @@ const ManifestPlugin = require('webpack-manifest-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
-const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const paths = require('./paths')
 const modules = require('./modules')
@@ -122,6 +120,7 @@ module.exports = function(webpackEnv) {
           loader: require.resolve(preProcessor),
           options: {
             sourceMap: true,
+            includePaths: [path.resolve('node_modules')],
           },
         }
       )
@@ -218,10 +217,10 @@ module.exports = function(webpackEnv) {
         modules.additionalModulePaths || []
       ),
       extensions: paths.moduleFileExtensions.map(ext => `.${ext}`),
-      plugins: [
-        PnpWebpackPlugin,
-        new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
-      ],
+      plugins: [PnpWebpackPlugin],
+      alias: {
+        hooks: path.join(paths.appSrc, 'hooks'),
+      },
     },
     resolveLoader: {
       plugins: [PnpWebpackPlugin.moduleLoader(module)],

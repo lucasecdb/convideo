@@ -1,4 +1,5 @@
 @import "./_variables.scss";
+@import "@material/theme/mixins";
 
 .container {
   display: grid;
@@ -9,7 +10,7 @@
 }
 
 .containerDrag {
-  border-color: $primary;
+  @include mdc-theme-prop(border-color, primary);
 }
 
 .intro {
@@ -29,7 +30,7 @@
   width: auto;
   font: inherit;
   font-weight: bold;
-  color: $primary;
+  @include mdc-theme-prop(color, primary);
   cursor: pointer;
 }
 
