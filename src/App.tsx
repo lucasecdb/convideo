@@ -6,27 +6,16 @@ import VideoConverter from './VideoConverter'
 import './App.css'
 
 const App: React.FC = () => {
-  const [fileBuffer, setFileBuffer] = useState<ArrayBuffer | null>(null)
+  const [file, setFile] = useState<File | null>(null)
 
   const handleFile = async (inputFile: File) => {
-    // arrayBuffer is not defined in dom lib, but it
-    // exists per the spec: https://developer.mozilla.org/en-US/docs/Web/API/Blob/arrayBuffer
-    const buffer = await ((inputFile as unknown) as Body).arrayBuffer()
-
-    setFileBuffer(buffer)
+    setFile(inputFile)
   }
 
-  return (
-    <div>
-      {fileBuffer ? (
-        <VideoConverter
-          video={fileBuffer}
-          onClose={() => setFileBuffer(null)}
-        />
-      ) : (
-        <FileUploader onFile={handleFile} />
-      )}
-    </div>
+  return file ? (
+    <VideoConverter video={file} onClose={() => setFile(null)} />
+  ) : (
+    <FileUploader onFile={handleFile} />
   )
 }
 

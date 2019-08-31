@@ -8,6 +8,7 @@
   "rules": {
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/camelcase": "off",
-    "@typescript-eslint/no-non-null-assertion": "off"
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "jsx-a11y/media-has-caption": "off"
   }
 }
