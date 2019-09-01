@@ -10,6 +10,9 @@ extern "C" int main(int argc, char** argv);
 uint8_t* result;
 
 val convert(std::string video) {
+  remove("input.mp4");
+  remove("output.mkv");
+
   FILE* infile = fopen("input.mp4", "wb");
   fwrite(video.c_str(), video.length(), 1, infile);
   fflush(infile);
