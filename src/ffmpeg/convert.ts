@@ -6,7 +6,10 @@ let emscriptenModule: Promise<FFModule>
 
 export default async function convert(data: ArrayBuffer) {
   if (!emscriptenModule) {
-    emscriptenModule = initEmscriptenModule(ffmpeg, wasmUrl)
+    emscriptenModule = initEmscriptenModule(ffmpeg, wasmUrl, {
+      // @ts-ignore
+      stdin: () => 0,
+    })
   }
 
   const module = await emscriptenModule

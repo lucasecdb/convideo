@@ -4,10 +4,12 @@ type ModuleFactory<M extends EmscriptenModule> = (
 
 export function initEmscriptenModule<T extends EmscriptenModule>(
   moduleFactory: ModuleFactory<T>,
-  wasmUrl: string
+  wasmUrl: string,
+  opts: Partial<EmscriptenModule> = {}
 ): Promise<T> {
   return new Promise(resolve => {
     const module = moduleFactory({
+      ...opts,
       // Just to be safe, don't automatically invoke any wasm functions
       noInitialRun: true,
       locateFile(url: string): string {
