@@ -11,18 +11,28 @@ export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib/"
 apt-get update
 apt-get install -qqy pkg-config
 
-COMMON_FILTERS=aresample,scale,crop,overlay
-COMMON_DEMUXERS=matroska,ogg,avi,mov,flv,mpegps,image2,mp3,concat
-COMMON_DECODERS="vp8,vp9,theora,\
-mpeg2video,mpeg4,h264,hevc,\
-png,mjpeg,\
-vorbis,opus,\
-mp3,ac3,aac,\
-ass,ssa,srt,webvtt"
-COMMON_MUXERS=matroska,avi,mov,flv,ogg,image2,null
-
-MP4_MUXERS=mp4,mp3
-MP4_ENCODERS=libx264,libmp3lame,aac
+FILTERS=aresample,crop,overlay,scale
+DEMUXERS=avi,concat,flv,image2,matroska,mov,mp3,mpegps,ogg
+MUXERS=avi,flv,image2,matroska,mov,mp4,mp3,null,ogg
+ENCODERS=aac,ac3,libx264,libmp3lame
+DECODERS="aac,\
+ac3,\
+ass,\
+h264,\
+hevc,\
+mjpeg,\
+mp3,\
+mpeg2video,\
+mpeg4,\
+opus,\
+png,\
+srt,\
+ssa,\
+theora,\
+vorbis,\
+vp8,\
+vp9,\
+webvtt"
 
 echo "=========================="
 echo "Compiling libx264"
@@ -120,23 +130,22 @@ echo "=========================="
     --disable-dxva2 \
     --disable-vaapi \
     --disable-vdpau \
-    $(eval echo --enable-decoder={$COMMON_DECODERS}) \
-    $(eval echo --enable-demuxer={$COMMON_DEMUXERS}) \
-    $(eval echo --enable-muxer={$COMMON_MUXERS}) \
+    $(eval echo --enable-decoder={$DECODERS}) \
+    $(eval echo --enable-encoder={$ENCODERS}) \
+    $(eval echo --enable-demuxer={$DEMUXERS}) \
+    $(eval echo --enable-muxer={$MUXERS}) \
     --enable-protocol=file \
-    $(eval echo --enable-filter={$COMMON_FILTERS}) \
+    $(eval echo --enable-filter={$FILTERS}) \
     --disable-bzlib \
     --disable-iconv \
     --disable-libxcb \
     --disable-lzma \
     --disable-securetransport \
     --disable-xlib \
-    --enable-zlib \
-    $(eval echo --enable-encoder={$MP4_ENCODERS}) \
-    $(eval echo --enable-muxer={$MP4_MUXERS}) \
     --enable-libmp3lame \
     --enable-gpl \
     --enable-libx264 \
+    --enable-zlib \
     --extra-cflags="-I ${PREFIX}/include" \
     --extra-ldflags="-L ${PREFIX}/lib"
   emmake make -j8
