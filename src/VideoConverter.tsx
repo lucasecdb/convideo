@@ -1,7 +1,8 @@
 import classNames from 'classnames'
-import React from 'react'
+import React, { useState } from 'react'
 
 import Button from './components/Button'
+import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
 import convert from './ffmpeg/convert'
@@ -15,14 +16,21 @@ interface Props {
 }
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
+  const [loading, setLoading] = useState(false)
   const videoUrl = URL.createObjectURL(video)
 
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
 
-    const convertedVideoBuffer = await convert(videoArrayBuffer)
+    setLoading(true)
 
-    console.log(convertedVideoBuffer)
+    try {
+      const convertedVideoBuffer = await convert(videoArrayBuffer)
+
+      console.log(convertedVideoBuffer)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -48,8 +56,13 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           <t.Subtitle1>Conversion options</t.Subtitle1>
         </div>
       </div>
-      <Button raised className="mt3 f6 self-center" onClick={handleConvert}>
-        Convert
+      <Button
+        disabled={loading}
+        raised
+        className="mt3 f6 self-center"
+        onClick={handleConvert}
+      >
+        {loading ? <CircularProgress /> : 'Convert'}
       </Button>
     </div>
   )
