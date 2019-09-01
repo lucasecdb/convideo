@@ -6,7 +6,7 @@
   grid-template-columns: 1fr;
   justify-items: center;
   align-items: center;
-  border: 4px transparent dashed;
+  border: 2px transparent dashed;
 }
 
 .containerDrag {
@@ -18,18 +18,14 @@
   padding: 6rem 0;
 }
 
-.fileInput {
-  display: none;
-}
-
 .selectButton {
+  display: inline;
   background: transparent;
   border: none;
   margin: 0;
   padding: 0;
-  width: auto;
   font: inherit;
-  font-weight: bold;
+  font-weight: 500;
   @include mdc-theme-prop(color, primary);
   cursor: pointer;
 }

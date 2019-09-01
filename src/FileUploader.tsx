@@ -120,7 +120,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
           select a video
         </button>
         <input
-          className={styles.fileInput}
+          className="dn"
           ref={inputRef}
           accept="video/*"
           autoComplete="off"
