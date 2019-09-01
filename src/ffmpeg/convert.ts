@@ -14,9 +14,12 @@ export default async function convert(data: ArrayBuffer) {
 
   const module = await emscriptenModule
 
-  const resultView = module.convert(new Uint8ClampedArray(data))
-  const result = new Uint8ClampedArray(resultView)
-  module.free_result()
+  try {
+    const resultView = module.convert(new Uint8ClampedArray(data))
+    const result = new Uint8ClampedArray(resultView)
 
-  return result.buffer as ArrayBuffer
+    return result.buffer as ArrayBuffer
+  } finally {
+    module.free_result()
+  }
 }
