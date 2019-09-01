@@ -3,7 +3,9 @@
   "scripts": {
     "install": "napa",
     "build": "docker run --rm -v $(pwd):/src trzeci/emscripten ./build.sh",
-    "build:wasm": "docker run --rm -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
+    "build:with-asm": "docker run --rm -e ASM=1 -v $(pwd):/src trzeci/emscripten ./build.sh",
+    "build:bind": "docker run --rm -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh",
+    "build:bind:with-asm": "docker run --rm -v $(pwd):/src -e SKIP_BUILD=1 -e ASM=1 trzeci/emscripten ./build.sh"
  },
   "napa": {
     "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",
