@@ -42,7 +42,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         <div
           className={classNames(
             styles.optionsContainer,
-            'flex flex-column w-100'
+            'flex flex-column w-100 ml0 ml3-l'
           )}
         >
           <t.Subtitle1>Conversion options</t.Subtitle1>
