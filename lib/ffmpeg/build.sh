@@ -2,7 +2,7 @@
 
 set -e
 
-export OPTIMIZE="-O3"
+export OPTIMIZE="-Os"
 export PREFIX="/src/build"
 export CFLAGS="${OPTIMIZE} -I${PREFIX}/include/"
 export CPPFLAGS="${OPTIMIZE} -I${PREFIX}/include/"

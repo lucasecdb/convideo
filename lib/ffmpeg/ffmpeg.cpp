@@ -23,7 +23,7 @@ val convert(std::string video) {
 
   FILE *outfile = fopen("output.mkv", "rb");
   fseek(outfile, 0, SEEK_END);
-  int fsize = ftell(outfile);
+  long fsize = ftell(outfile);
   result = (uint8_t*) malloc(fsize);
   fseek(outfile, 0, SEEK_SET);
   fread(result, fsize, 1, outfile);
