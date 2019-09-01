@@ -2,7 +2,8 @@
   "name": "ffmpeg",
   "scripts": {
     "install": "napa",
-    "build": "docker run --rm -v $(pwd):/src trzeci/emscripten ./build.sh"
+    "build": "docker run --rm -v $(pwd):/src trzeci/emscripten ./build.sh",
+    "build:wasm": "docker run --rm -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
  },
   "napa": {
     "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",
