@@ -2,9 +2,9 @@
   "name": "ffmpeg",
   "scripts": {
     "install": "napa",
-    "build": "docker run --rm -v $(pwd):/src -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
-    "build-all": "docker run --rm -v $(pwd):/src trzeci/emscripten ./build.sh",
-    "build-bind": "docker run --rm -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
+    "build": "docker run --rm -it -v $(pwd):/src -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
+    "build-all": "docker run --rm -it -v $(pwd):/src trzeci/emscripten ./build.sh",
+    "build-bind": "docker run --rm -it -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
  },
   "napa": {
     "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",
