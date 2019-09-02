@@ -1,14 +1,19 @@
+import classNames from 'classnames'
 import React from 'react'
+
+import styles from './VideoPlayer.module.scss'
 
 interface Props extends React.VideoHTMLAttributes<HTMLVideoElement> {
   src: string
 }
 
-const VideoPlayer: React.FC<Props> = ({ src, ...props }) => {
+const VideoPlayer: React.FC<Props> = ({ src, className, ...props }) => {
   return (
-    <video {...props} controls>
-      <source src={src} />
-    </video>
+    <div className={classNames(className, styles.container)}>
+      <video {...props} className={styles.player} controls>
+        <source src={src} />
+      </video>
+    </div>
   )
 }
 

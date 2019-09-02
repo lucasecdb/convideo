@@ -1,19 +1,16 @@
-.player {
-  max-height: 500px;
+.videoRoot {
+  flex: 4;
+  padding-top: 37.5%;
 
-  @media (max-width: 900px) {
-    max-height: 400px;
+  @media (max-width: 1200px) {
+    padding-top: 40%;
   }
 
-  @media (max-width: 600px) {
-    max-height: 300px;
+  @media (max-width: 900px) {
+    padding-top: 56.25%;
   }
 }
 
 .optionsContainer {
-  max-width: 320px;
-
-  @media (max-width: 600px) {
-    max-width: 100%;
-  }
+  flex: 1;
 }

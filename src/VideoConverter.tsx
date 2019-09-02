@@ -43,14 +43,11 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         Go Back
       </Button>
       <div className="flex flex-column flex-row-l mt3">
-        <VideoPlayer
-          className={classNames(styles.player, 'w-100')}
-          src={videoUrl}
-        />
+        <VideoPlayer className={styles.videoRoot} src={videoUrl} />
         <div
           className={classNames(
             styles.optionsContainer,
-            'flex flex-column w-100 ml0 ml3-l'
+            'flex flex-column ml0 ml3-l'
           )}
         >
           <t.Subtitle1>Conversion options</t.Subtitle1>

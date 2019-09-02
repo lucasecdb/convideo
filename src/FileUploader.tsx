@@ -114,7 +114,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <t.Headline2 className={styles.intro}>
+      <t.Headline2 className={classNames(styles.intro, 'tc')}>
         Drag & drop, or{' '}
         <button className={styles.selectButton} onClick={handleFileSelect}>
           select a video
