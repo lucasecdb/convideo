@@ -105,6 +105,7 @@ echo "=========================="
 test -n "$SKIP_BUILD" || (
   cd node_modules/ffmpeg
   EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emconfigure ./configure \
+    --prefix=${PREFIX}/ \
     --cc=emcc \
     --enable-cross-compile \
     --target-os=none \
@@ -118,7 +119,6 @@ test -n "$SKIP_BUILD" || (
     --disable-debug \
     --disable-stripping \
     --disable-all \
-    --enable-ffmpeg \
     --enable-avcodec \
     --enable-avformat \
     --enable-avutil \
@@ -149,7 +149,7 @@ test -n "$SKIP_BUILD" || (
     --extra-cflags="-I ${PREFIX}/include" \
     --extra-ldflags="-L ${PREFIX}/lib"
   emmake make -j8
-  cp ffmpeg ffmpeg.bc
+  emmake make install
 )
 echo "=========================="
 echo "Compiling ffmpeg done"
@@ -162,11 +162,10 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   -s INVOKE_RUN=0 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORT_NAME=\"ffmpeg\" \
+  -s ASSERTIONS=1 \
   --std=c++11 \
-  -I node_modules/ffmpeg
-  ${PREFIX}/lib/libmp3lame.so \
-  ${PREFIX}/lib/libx264.so \
-  node_modules/ffmpeg/ffmpeg.bc \
+  -I ${PREFIX}/include \
+  -L ${PREFIX}/lib \
   ffmpeg.cpp"
 
 echo "=========================="
