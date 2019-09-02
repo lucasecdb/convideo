@@ -34,6 +34,13 @@ vp8,\
 vp9,\
 webvtt"
 
+FFMPEG_LIBS="libavformat.a,\
+libavcodec.a,\
+libavfilter.a,\
+libswscale.a,\
+libswresample.a,\
+libavutil.a"
+
 echo "=========================="
 echo "Compiling libx264"
 echo "=========================="
@@ -119,8 +126,6 @@ test -n "$SKIP_BUILD" || (
     --disable-all \
     --disable-manpages \
     --disable-stripping \
-    --enable-shared \
-    --disable-static \
     --enable-avcodec \
     --enable-avformat \
     --enable-avutil \
@@ -165,13 +170,13 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORT_NAME=\"ffmpeg\" \
   --std=c++11 \
+  -x c++ \
   -I ${PREFIX}/include \
-  -L ${PREFIX}/lib \
-  -lavcodec
-  -lavformat
-  -lavfilter
-  -lavutil
-  ffmpeg.cpp"
+  ffmpeg.cpp \
+  $(eval echo $PREFIX/lib/{$FFMPEG_LIBS}) \
+  ${PREFIX}/lib/libmp3lame.so \
+  ${PREFIX}/lib/libx264.so \
+  ${PREFIX}/lib/libz.so"
 
 echo "=========================="
 echo "Generating bidings"
