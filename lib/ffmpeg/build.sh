@@ -4,9 +4,9 @@ set -e
 
 export OPTIMIZE="-Os"
 export PREFIX="/src/build"
-export CFLAGS="${OPTIMIZE} -I${PREFIX}/include/"
-export CPPFLAGS="${OPTIMIZE} -I${PREFIX}/include/"
-export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib/"
+export CFLAGS="${OPTIMIZE} -I${PREFIX}/include"
+export CPPFLAGS="${OPTIMIZE} -I${PREFIX}/include"
+export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib"
 
 apt-get update
 apt-get install -qqy pkg-config
@@ -37,7 +37,7 @@ webvtt"
 echo "=========================="
 echo "Compiling libx264"
 echo "=========================="
-test -n "$SKIP_BUILD" || (
+test -n "$SKIP_BUILD" || test -n "$SKIP_X264" || (
   cd node_modules/libx264
   if ! patch -R -s -f -p1 --dry-run < ../../x264-configure.patch; then
     patch -p1 < ../../x264-configure.patch
@@ -67,7 +67,7 @@ echo "=========================="
 echo "=========================="
 echo "Compiling lame"
 echo "=========================="
-test -n "$SKIP_BUILD" || (
+test -n "$SKIP_BUILD" || test -n "$SKIP_LAME" || (
   cd node_modules/libmp3lame
   emconfigure ./configure \
     --prefix=${PREFIX}/ \
@@ -88,7 +88,7 @@ echo "=========================="
 echo "=========================="
 echo "Compiling zlib"
 echo "=========================="
-test -n "$SKIP_BUILD" || (
+test -n "$SKIP_BUILD" || test -n "$SKIP_ZLIB" || (
   cd node_modules/zlib
   emconfigure ./configure \
     --prefix=${PREFIX}/
@@ -105,7 +105,8 @@ echo "=========================="
 test -n "$SKIP_BUILD" || (
   cd node_modules/ffmpeg
   EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emconfigure ./configure \
-    --prefix=${PREFIX}/ \
+    --prefix=${PREFIX} \
+    --shlibdir=${PREFIX}/shlib \
     --cc=emcc \
     --enable-cross-compile \
     --target-os=none \
@@ -162,7 +163,6 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   -s INVOKE_RUN=0 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORT_NAME=\"ffmpeg\" \
-  -s ASSERTIONS=1 \
   --std=c++11 \
   -I ${PREFIX}/include \
   -L ${PREFIX}/lib \
