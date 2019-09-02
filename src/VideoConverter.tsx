@@ -27,7 +27,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     try {
       const convertedVideoBuffer = await convert(videoArrayBuffer)
 
-      console.log(convertedVideoBuffer)
+      console.log('converted video', convertedVideoBuffer)
     } finally {
       setLoading(false)
     }
@@ -36,11 +36,11 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   return (
     <div className="pa3 flex flex-column">
       <Button
-        icon={<Icon icon="arrow_back" />}
+        icon={<Icon icon="close" />}
         className="self-start"
         onClick={onClose}
       >
-        Go Back
+        Cancel
       </Button>
       <div className="flex flex-column flex-row-l mt3">
         <VideoPlayer className={styles.videoRoot} src={videoUrl} />
