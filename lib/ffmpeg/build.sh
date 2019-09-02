@@ -43,7 +43,7 @@ test -n "$SKIP_BUILD" || test -n "$SKIP_X264" || (
     patch -p1 < ../../x264-configure.patch
   fi
   emconfigure ./configure \
-    --prefix=${PREFIX}/ \
+    --prefix=${PREFIX} \
     --extra-cflags="-Wno-unknown-warning-option" \
     --host=x86-none-linux \
     --disable-cli \
@@ -70,7 +70,7 @@ echo "=========================="
 test -n "$SKIP_BUILD" || test -n "$SKIP_LAME" || (
   cd node_modules/libmp3lame
   emconfigure ./configure \
-    --prefix=${PREFIX}/ \
+    --prefix=${PREFIX} \
     --host=x86-none-linux \
     --disable-static \
     \
@@ -90,8 +90,7 @@ echo "Compiling zlib"
 echo "=========================="
 test -n "$SKIP_BUILD" || test -n "$SKIP_ZLIB" || (
   cd node_modules/zlib
-  emconfigure ./configure \
-    --prefix=${PREFIX}/
+  emconfigure ./configure --prefix=${PREFIX}
   emmake make -j8
   emmake make install
 )
@@ -106,7 +105,6 @@ test -n "$SKIP_BUILD" || (
   cd node_modules/ffmpeg
   EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emconfigure ./configure \
     --prefix=${PREFIX} \
-    --shlibdir=${PREFIX}/shlib \
     --cc=emcc \
     --enable-cross-compile \
     --target-os=none \
@@ -118,8 +116,11 @@ test -n "$SKIP_BUILD" || (
     --disable-w32threads \
     --disable-os2threads \
     --disable-debug \
-    --disable-stripping \
     --disable-all \
+    --disable-manpages \
+    --disable-stripping \
+    --enable-shared \
+    --disable-static \
     --enable-avcodec \
     --enable-avformat \
     --enable-avutil \
@@ -166,16 +167,20 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   --std=c++11 \
   -I ${PREFIX}/include \
   -L ${PREFIX}/lib \
+  -lavcodec
+  -lavformat
+  -lavfilter
+  -lavutil
   ffmpeg.cpp"
 
 echo "=========================="
 echo "Generating bidings"
 echo "=========================="
 (
-  emcc $EMSCRIPTEN_COMMON_ARGS -o ffmpeg.js
+  EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o ffmpeg.js
 
   if [ $ASM ]; then
-    emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o ffmpeg.asm.js
+    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o ffmpeg.asm.js
   fi
 )
 echo "=========================="
