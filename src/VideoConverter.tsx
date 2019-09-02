@@ -5,10 +5,11 @@ import Button from './components/Button'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
-import convert from './ffmpeg/convert'
+import { convert } from './ffmpeg'
+import Icon from './components/Icon'
+import { downloadFile } from 'utils'
 
 import styles from './VideoConverter.module.scss'
-import Icon from 'components/Icon'
 
 interface Props {
   video: File
@@ -27,7 +28,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     try {
       const convertedVideoBuffer = await convert(videoArrayBuffer)
 
-      console.log('converted video', convertedVideoBuffer)
+      downloadFile('output.mkv', convertedVideoBuffer)
     } finally {
       setLoading(false)
     }

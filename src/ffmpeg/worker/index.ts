@@ -1,10 +1,12 @@
-import ffmpeg, { FFModule } from '../../lib/ffmpeg/ffmpeg'
-import wasmUrl from '../../lib/ffmpeg/ffmpeg.wasm'
-import { initEmscriptenModule } from './util'
+import { expose } from 'comlink'
+
+import ffmpeg, { FFModule } from '../../../lib/ffmpeg/ffmpeg'
+import wasmUrl from '../../../lib/ffmpeg/ffmpeg.wasm'
+import { initEmscriptenModule } from '../util'
 
 let emscriptenModule: Promise<FFModule>
 
-export default async function convert(data: ArrayBuffer) {
+const convert = async (data: ArrayBuffer) => {
   if (!emscriptenModule) {
     emscriptenModule = initEmscriptenModule(ffmpeg, wasmUrl, {
       // @ts-ignore
@@ -23,3 +25,11 @@ export default async function convert(data: ArrayBuffer) {
     module.free_result()
   }
 }
+
+const exports = {
+  convert,
+}
+
+export type FFmpegWorkerAPI = typeof exports
+
+expose(exports, self as any)
