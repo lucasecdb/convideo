@@ -11,7 +11,7 @@ export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib"
 apt-get update
 apt-get install -qqy pkg-config
 
-FILTERS=aresample,crop,overlay,scale
+FILTERS=anull,aresample,crop,null,overlay,scale
 DEMUXERS=avi,concat,flv,image2,matroska,mov,mp3,mpegps,ogg
 MUXERS=avi,flv,image2,matroska,mov,mp4,mp3,null,ogg
 ENCODERS=aac,ac3,libx264,libmp3lame
