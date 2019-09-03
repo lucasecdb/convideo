@@ -241,7 +241,7 @@ module.exports = function(webpackEnv) {
               },
             },
             {
-              test: /\.(js|mjs|jsx|ts|tsx)$/,
+              test: /\.(ts|tsx)$/,
               include: paths.appSrc,
               loader: require.resolve('babel-loader'),
               options: {
@@ -266,6 +266,12 @@ module.exports = function(webpackEnv) {
                 cacheCompression: isEnvProduction,
                 compact: isEnvProduction,
               },
+            },
+            {
+              test: /.js$/,
+              include: paths.appLib,
+              type: 'javascript/auto',
+              resolve: {},
             },
             {
               test: /\.(js|mjs)$/,
@@ -377,7 +383,9 @@ module.exports = function(webpackEnv) {
             : undefined
         )
       ),
-      new WorkerPlugin(),
+      new WorkerPlugin({
+        globalObject: 'self',
+      }),
       isEnvProduction &&
         shouldInlineRuntimeChunk &&
         new InlineChunkHtmlPlugin(HtmlWebpackPlugin, [/runtime~.+[.]js/]),
