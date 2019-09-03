@@ -69,3 +69,8 @@ declare module '*.wasm' {
   const src: string
   export default src
 }
+
+declare module '*.mem' {
+  const src: string
+  export default src
+}

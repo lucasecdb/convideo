@@ -20,11 +20,11 @@ interface Props {
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [loading, setLoading] = useState(false)
-  const [checkboxChecked, setCheckboxChecked] = useState(false)
+  const [asmEnabled, setAsmEnabled] = useState(false)
   const videoUrl = URL.createObjectURL(video)
 
   const handleCheckboxToggle = () => {
-    setCheckboxChecked(prevChecked => !prevChecked)
+    setAsmEnabled(prevChecked => !prevChecked)
   }
 
   const handleConvert = async () => {
@@ -33,7 +33,9 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     setLoading(true)
 
     try {
-      const convertedVideoBuffer = await convert(videoArrayBuffer)
+      const convertedVideoBuffer = await convert(videoArrayBuffer, {
+        asm: asmEnabled,
+      })
 
       downloadFile('output.mkv', convertedVideoBuffer)
     } finally {
@@ -65,7 +67,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
                 nativeControlId="asm"
                 name="asm"
                 onChange={handleCheckboxToggle}
-                checked={checkboxChecked}
+                checked={asmEnabled}
               />
             }
             label={<span>Use asm.js</span>}

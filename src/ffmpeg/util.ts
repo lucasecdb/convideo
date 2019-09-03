@@ -4,7 +4,7 @@ type ModuleFactory<M extends EmscriptenModule> = (
 
 export function initEmscriptenModule<T extends EmscriptenModule>(
   moduleFactory: ModuleFactory<T>,
-  wasmUrl: string,
+  { wasmUrl, memUrl }: { wasmUrl?: string; memUrl?: string },
   opts: Partial<EmscriptenModule> = {}
 ): Promise<T> {
   return new Promise(resolve => {
@@ -14,8 +14,11 @@ export function initEmscriptenModule<T extends EmscriptenModule>(
       noInitialRun: true,
       locateFile(url: string): string {
         // Redirect the request for the wasm binary to whatever webpack gave us.
-        if (url.endsWith('.wasm')) {
+        if (url.endsWith('.wasm') && wasmUrl) {
           return wasmUrl
+        }
+        if (url.endsWith('.mem') && memUrl) {
+          return memUrl
         }
         return url
       },
