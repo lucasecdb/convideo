@@ -48,7 +48,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         className="self-start"
         onClick={onClose}
       >
-        Cancel
+        Close
       </Button>
       <div className="flex flex-column flex-row-l mt3">
         <VideoPlayer className={styles.videoRoot} src={videoUrl} />
