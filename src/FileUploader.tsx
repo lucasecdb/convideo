@@ -17,17 +17,21 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
     },
   })
 
+  const { onClick, ...rootProps } = getRootProps()
+
   return (
     <div
-      {...getRootProps()}
-      className={classNames(styles.container, {
-        [styles.containerDrag]: isDragActive,
+      {...rootProps}
+      className={classNames('min-vh-100 h-100 relative', styles.container, {
+        [styles.containerDragActive]: isDragActive,
       })}
     >
       <input {...getInputProps()} className="dn" />
       <t.Headline2 className={classNames(styles.intro, 'tc')}>
-        Drag & drop, or{' '}
-        <span className={styles.selectButton}>click to select a video</span>
+        Drag & drop or{' '}
+        <button className={styles.selectButton} onClick={onClick}>
+          select a video
+        </button>
       </t.Headline2>
     </div>
   )
