@@ -1,6 +1,6 @@
 import classNames from 'classnames'
-import React, { useRef, useState } from 'react'
-import { fromEvent } from 'file-selector'
+import React from 'react'
+import { useDropzone } from 'react-dropzone'
 
 import * as t from './components/Typography'
 import styles from './FileUploader.module.scss'
@@ -10,124 +10,24 @@ interface Props {
 }
 
 const FileUploader: React.FC<Props> = ({ onFile }) => {
-  const rootRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [dragActive, setDragActive] = useState(false)
-  const [dragTargets, setDragTargets] = useState<EventTarget[]>([])
-
-  const resetFileInput = () => {
-    inputRef.current!.value = ''
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const fileInput = e.target
-    const file = fileInput.files && fileInput.files[0]
-
-    if (!file) {
-      return
-    }
-
-    resetFileInput()
-    onFile(file)
-  }
-
-  const handleFileSelect = () => {
-    inputRef.current!.click()
-  }
-
-  const handleDragEnter = (evt: React.DragEvent<HTMLDivElement>) => {
-    evt.preventDefault()
-    // persist since we are including the target in
-    // the state
-    evt.persist()
-
-    if (dragTargets.indexOf(evt.target) === -1) {
-      setDragTargets(prevTargets => [...prevTargets, evt.target])
-    }
-    setDragActive(true)
-  }
-
-  const handleDragLeave = (evt: React.DragEvent<HTMLDivElement>) => {
-    evt.preventDefault()
-    evt.stopPropagation()
-
-    const targets = dragTargets.filter(
-      target =>
-        target !== evt.target &&
-        rootRef.current &&
-        rootRef.current.contains(target as Node)
-    )
-
-    setDragTargets(targets)
-
-    if (targets.length > 0) {
-      // don't disable drag if we are in the children of the root
-      // element
-      return
-    }
-
-    setDragActive(false)
-  }
-
-  const handleDragOver = (evt: React.DragEvent<HTMLDivElement>) => {
-    evt.preventDefault()
-    evt.stopPropagation()
-  }
-
-  const handleDrop = async (evt: React.DragEvent<HTMLDivElement>) => {
-    evt.preventDefault()
-    evt.persist()
-    evt.stopPropagation()
-
-    setDragActive(false)
-    setDragTargets([])
-
-    const [maybeFile] = await fromEvent(evt.nativeEvent)
-
-    if (!maybeFile) {
-      return
-    }
-
-    let file: File | null
-
-    if ('getAsFile' in maybeFile) {
-      file = maybeFile.getAsFile()
-    } else {
-      file = maybeFile
-    }
-
-    if (file == null) {
-      return
-    }
-
-    onFile(file)
-  }
+  const { isDragActive, getRootProps, getInputProps } = useDropzone({
+    accept: 'video/*',
+    onDropAccepted: files => {
+      onFile(files[0])
+    },
+  })
 
   return (
     <div
-      ref={rootRef}
+      {...getRootProps()}
       className={classNames(styles.container, {
-        [styles.containerDrag]: dragActive,
+        [styles.containerDrag]: isDragActive,
       })}
-      onDragEnter={handleDragEnter}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
     >
+      <input {...getInputProps()} className="dn" />
       <t.Headline2 className={classNames(styles.intro, 'tc')}>
         Drag & drop, or{' '}
-        <button className={styles.selectButton} onClick={handleFileSelect}>
-          select a video
-        </button>
-        <input
-          className="dn"
-          ref={inputRef}
-          accept="video/*"
-          autoComplete="off"
-          type="file"
-          tabIndex={-1}
-          onChange={handleFileChange}
-        />
+        <span className={styles.selectButton}>click to select a video</span>
       </t.Headline2>
     </div>
   )
