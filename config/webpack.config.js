@@ -271,7 +271,7 @@ module.exports = function(webpackEnv) {
               test: /.js$/,
               include: paths.appLib,
               type: 'javascript/auto',
-              resolve: {},
+              loader: 'exports-loader',
             },
             {
               test: /\.(js|mjs)$/,

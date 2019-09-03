@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "node --max_old_space_size=2048 scripts/start.js",
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "lint": "tsc --noEmit && eslint --ext ts,tsx ."
@@ -52,6 +52,7 @@
     "dotenv-expand": "4.2.0",
     "eslint": "^6.2.2",
     "eslint-loader": "2.2.1",
+    "exports-loader": "^0.7.0",
     "file-loader": "3.0.1",
     "fs-extra": "7.0.1",
     "html-webpack-plugin": "4.0.0-beta.5",
