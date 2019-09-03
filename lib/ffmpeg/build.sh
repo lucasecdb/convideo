@@ -182,10 +182,11 @@ echo "=========================="
 echo "Generating bidings"
 echo "=========================="
 (
-  EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o ffmpeg.js
-
   if [ $ASM ]; then
-    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o ffmpeg.asm.js
+    mkdir asm
+    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o asm/ffmpeg.js
+  else
+    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o ffmpeg.js
   fi
 )
 echo "=========================="
