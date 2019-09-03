@@ -1,13 +1,10 @@
 import { wrap } from 'comlink'
 
 type FFmpegWorkerAPI = import('./worker').FFmpegWorkerAPI
+type ConvertOptions = import('./worker').ConvertOptions
 
-interface Options {
+interface Options extends ConvertOptions {
   asm?: boolean
-}
-
-const defaultOptions: Options = {
-  asm: false,
 }
 
 let worker: Worker
@@ -15,16 +12,16 @@ let workerAPI: FFmpegWorkerAPI
 
 export async function convert(
   data: ArrayBuffer,
-  opts: Options = defaultOptions
+  { asm = false, ...opts }: Options
 ) {
   if (!worker) {
     worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
     workerAPI = wrap<FFmpegWorkerAPI>(worker)
   }
 
-  if (opts.asm) {
-    return workerAPI.convertAsm(data)
+  if (asm) {
+    return workerAPI.convertAsm(data, opts)
   }
 
-  return workerAPI.convert(data)
+  return workerAPI.convert(data, opts)
 }

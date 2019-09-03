@@ -21,10 +21,15 @@ interface Props {
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [loading, setLoading] = useState(false)
   const [asmEnabled, setAsmEnabled] = useState(false)
+  const [verbose, setVerbose] = useState(false)
   const videoUrl = URL.createObjectURL(video)
 
-  const handleCheckboxToggle = () => {
+  const handleAsmToggle = () => {
     setAsmEnabled(prevChecked => !prevChecked)
+  }
+
+  const handleVerboseToggle = () => {
+    setVerbose(prevVerbose => !prevVerbose)
   }
 
   const handleConvert = async () => {
@@ -33,9 +38,18 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     setLoading(true)
 
     try {
+      const start = performance.now()
+
       const convertedVideoBuffer = await convert(videoArrayBuffer, {
         asm: asmEnabled,
+        verbose,
       })
+
+      const end = performance.now()
+
+      const elapsedTime = (end - start) / 1000
+
+      console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
 
       downloadFile('output.mkv', convertedVideoBuffer)
     } finally {
@@ -66,12 +80,24 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
               <Checkbox
                 nativeControlId="asm"
                 name="asm"
-                onChange={handleCheckboxToggle}
+                onChange={handleAsmToggle}
                 checked={asmEnabled}
               />
             }
             label={<span>Use asm.js</span>}
             inputId="asm"
+          />
+          <FormField
+            input={
+              <Checkbox
+                nativeControlId="verbose"
+                name="verbose"
+                onChange={handleVerboseToggle}
+                checked={verbose}
+              />
+            }
+            label={<span>Verbose (debug only)</span>}
+            inputId="verbose"
           />
         </div>
       </div>

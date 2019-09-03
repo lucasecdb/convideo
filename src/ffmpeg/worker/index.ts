@@ -6,20 +6,20 @@ import { initEmscriptenModule } from '../util'
 
 type FFModule = import('../../../lib/ffmpeg/ffmpeg').FFModule
 
+export type ConvertOptions = {
+  verbose?: boolean
+}
+
 let ffmpegModule: Promise<FFModule>
 let asmFFmpegModule: Promise<FFModule>
 
-const convert = async (data: ArrayBuffer) => {
-  if (!ffmpegModule) {
-    const ffmpeg = (await import('../../../lib/ffmpeg/ffmpeg')).default
-    // eslint-disable-next-line require-atomic-updates
-    ffmpegModule = initEmscriptenModule(ffmpeg, { wasmUrl })
-  }
-
-  const module = await ffmpegModule
-
+const _convert = async (
+  module: FFModule,
+  data: ArrayBuffer,
+  { verbose = false }: ConvertOptions
+) => {
   try {
-    const resultView = module.convert(new Uint8ClampedArray(data))
+    const resultView = module.convert(new Uint8ClampedArray(data), verbose)
     const result = new Uint8ClampedArray(resultView)
 
     return result.buffer as ArrayBuffer
@@ -28,7 +28,19 @@ const convert = async (data: ArrayBuffer) => {
   }
 }
 
-const convertAsm = async (data: ArrayBuffer) => {
+const convert = async (data: ArrayBuffer, opts?: ConvertOptions) => {
+  if (!ffmpegModule) {
+    const ffmpeg = (await import('../../../lib/ffmpeg/ffmpeg')).default
+    // eslint-disable-next-line require-atomic-updates
+    ffmpegModule = initEmscriptenModule(ffmpeg, { wasmUrl })
+  }
+
+  const module = await ffmpegModule
+
+  return _convert(module, data, opts)
+}
+
+const convertAsm = async (data: ArrayBuffer, opts?: ConvertOptions) => {
   if (!asmFFmpegModule) {
     const ffmpegAsm = (await import('../../../lib/ffmpeg/asm/ffmpeg')).default
     // eslint-disable-next-line require-atomic-updates
@@ -37,14 +49,7 @@ const convertAsm = async (data: ArrayBuffer) => {
 
   const module = await asmFFmpegModule
 
-  try {
-    const resultView = module.convert(new Uint8ClampedArray(data))
-    const result = new Uint8ClampedArray(resultView)
-
-    return result.buffer as ArrayBuffer
-  } finally {
-    module.free_result()
-  }
+  return _convert(module, data, opts)
 }
 
 const exports = {

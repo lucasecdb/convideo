@@ -347,7 +347,7 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index, in
      AVMEDIA_TYPE_VIDEO) ? avcodec_encode_video2 : avcodec_encode_audio2;
   if (!got_frame)
     got_frame = &got_frame_local;
-  av_log(NULL, AV_LOG_INFO, "Encoding frame\n");
+  av_log(NULL, AV_LOG_VERBOSE, "Encoding frame\n");
   /* encode filtered frame */
   enc_pkt.data = NULL;
   enc_pkt.size = 0;
@@ -374,7 +374,7 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
 {
   int ret;
   AVFrame *filt_frame;
-  av_log(NULL, AV_LOG_INFO, "Pushing decoded frame to filters\n");
+  av_log(NULL, AV_LOG_VERBOSE, "Pushing decoded frame to filters\n");
   /* push the decoded frame into the filtergraph */
   ret = av_buffersrc_add_frame_flags(filter_ctx[stream_index].buffersrc_ctx,
       frame, 0);
@@ -389,7 +389,7 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
       ret = AVERROR(ENOMEM);
       break;
     }
-    av_log(NULL, AV_LOG_INFO, "Pulling filtered frame from filters\n");
+    av_log(NULL, AV_LOG_VERBOSE, "Pulling filtered frame from filters\n");
     ret = av_buffersink_get_frame(filter_ctx[stream_index].buffersink_ctx,
         filt_frame);
     if (ret < 0) {
@@ -418,7 +418,7 @@ static int flush_encoder(unsigned int stream_index)
         AV_CODEC_CAP_DELAY))
     return 0;
   while (1) {
-    av_log(NULL, AV_LOG_INFO, "Flushing stream #%u encoder\n", stream_index);
+    av_log(NULL, AV_LOG_VERBOSE, "Flushing stream #%u encoder\n", stream_index);
     ret = encode_write_frame(NULL, stream_index, &got_frame);
     if (ret < 0)
       break;
@@ -428,7 +428,7 @@ static int flush_encoder(unsigned int stream_index)
   return ret;
 }
 
-int main(int argc, char **argv)
+int transcode(std::string input_filename, std::string output_filename, bool verbose)
 {
   int ret;
   AVPacket packet = { .data = NULL, .size = 0 };
@@ -438,16 +438,20 @@ int main(int argc, char **argv)
   unsigned int i;
   int got_frame;
   int (*dec_func)(AVCodecContext *, AVFrame *, int *, const AVPacket *);
-  if (argc != 3) {
-    av_log(NULL, AV_LOG_ERROR, "Usage: %s <input file> <output file>\n", argv[0]);
-    return 1;
+
+  if (verbose) {
+    av_log_set_level(AV_LOG_VERBOSE);
+  } else {
+    av_log_set_level(AV_LOG_INFO);
   }
-  if ((ret = open_input_file(argv[1])) < 0)
+
+  if ((ret = open_input_file(input_filename.c_str())) < 0)
     goto end;
-  if ((ret = open_output_file(argv[2])) < 0)
+  if ((ret = open_output_file(output_filename.c_str())) < 0)
     goto end;
   if ((ret = init_filters()) < 0)
     goto end;
+
   /* read all packets */
   while (1) {
     if ((ret = av_read_frame(ifmt_ctx, &packet)) < 0)
@@ -536,7 +540,7 @@ end:
 
 uint8_t* result;
 
-val convert(std::string video) {
+val convert(std::string video, bool verbose) {
   remove("input.mp4");
   remove("output.mkv");
 
@@ -545,14 +549,7 @@ val convert(std::string video) {
   fflush(infile);
   fclose(infile);
 
-  char* argv[] = {
-  "ffmpeg",
-  "input.mp4",
-  "output.mkv"
-  };
-  int argc = sizeof(argv) / sizeof(argv[0]);
-
-  main(argc, argv);
+  transcode("input.mp4", "output.mkv", verbose);
 
   FILE *outfile = fopen("output.mkv", "rb");
   fseek(outfile, 0, SEEK_END);
