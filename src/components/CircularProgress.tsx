@@ -1,10 +1,19 @@
+import classNames from 'classnames'
 import React from 'react'
 
 import styles from './CircularProgress.module.scss'
 
-const CircularProgress: React.FC = () => {
+interface Props {
+  className?: string
+  size?: number
+}
+
+const CircularProgress: React.FC<Props> = ({ className, size = 28 }) => {
   return (
-    <div className={styles.spinner}>
+    <div
+      className={classNames(className, styles.spinner)}
+      style={{ ['--size' as any]: `${size}px` }}
+    >
       <div className={styles.spinnerContainer}>
         <div className={styles.spinnerLayer}>
           <div

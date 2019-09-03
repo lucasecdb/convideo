@@ -79,7 +79,11 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         className="mt3 f6 self-center"
         onClick={handleConvert}
       >
-        {loading ? <CircularProgress /> : 'Convert'}
+        {loading ? (
+          <CircularProgress className={styles.spinner} size={18} />
+        ) : (
+          'Convert'
+        )}
       </Button>
     </div>
   )
