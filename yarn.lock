@@ -1207,6 +1207,19 @@
     "@material/typography" "^3.1.0"
     tslib "^1.9.3"
 
+"@material/form-field@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@material/form-field/-/form-field-3.1.0.tgz#08e3dabd7e2be4e5831023b486975f5690f0897c"
+  integrity sha512-LnT9DRj/JRgkx46zHKt4H4VyYAMNO9rsvpsat7/dStN1o1ZSNCtHfkQDqVfXz93iDP58sEsLMbgTgh05xrg/Kw==
+  dependencies:
+    "@material/base" "^3.1.0"
+    "@material/feature-targeting" "^3.1.0"
+    "@material/ripple" "^3.1.0"
+    "@material/rtl" "^3.1.0"
+    "@material/theme" "^3.1.0"
+    "@material/typography" "^3.1.0"
+    tslib "^1.9.3"
+
 "@material/icon-button@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@material/icon-button/-/icon-button-3.1.0.tgz#843d6526a47a20ec2bf9b1ba668c33ccc9a7eca7"

@@ -2,6 +2,8 @@ import classNames from 'classnames'
 import React, { useState } from 'react'
 
 import Button from './components/Button'
+import Checkbox from './components/Checkbox'
+import FormField from './components/FormField'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
@@ -18,7 +20,12 @@ interface Props {
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [loading, setLoading] = useState(false)
+  const [checkboxChecked, setCheckboxChecked] = useState(false)
   const videoUrl = URL.createObjectURL(video)
+
+  const handleCheckboxToggle = () => {
+    setCheckboxChecked(prevChecked => !prevChecked)
+  }
 
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
@@ -48,10 +55,22 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         <div
           className={classNames(
             styles.optionsContainer,
-            'flex flex-column ml0 ml3-l'
+            'flex flex-column ml0 mt3 mt0-l ml3-l'
           )}
         >
           <t.Subtitle1>Conversion options</t.Subtitle1>
+          <FormField
+            input={
+              <Checkbox
+                nativeControlId="asm"
+                name="asm"
+                onChange={handleCheckboxToggle}
+                checked={checkboxChecked}
+              />
+            }
+            label={<span>Use asm.js</span>}
+            inputId="asm"
+          />
         </div>
       </div>
       <Button
