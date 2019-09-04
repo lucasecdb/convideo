@@ -139,8 +139,8 @@ module.exports = function(webpackEnv) {
         : false
       : isEnvDevelopment && 'cheap-module-source-map',
     entry: [
-      require.resolve('webpack-dev-server/client') + '?/',
-      require.resolve('webpack/hot/dev-server'),
+      isEnvDevelopment && require.resolve('webpack-dev-server/client') + '?/',
+      isEnvDevelopment && require.resolve('webpack/hot/dev-server'),
       paths.appIndexJs,
     ].filter(Boolean),
     output: {
