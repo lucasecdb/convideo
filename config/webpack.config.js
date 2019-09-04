@@ -168,6 +168,7 @@ module.exports = function(webpackEnv) {
       minimize: isEnvProduction,
       minimizer: [
         new TerserPlugin({
+          test: /(!lib\/.*)/,
           terserOptions: {
             parse: {
               ecma: 8,
@@ -271,7 +272,6 @@ module.exports = function(webpackEnv) {
               test: /.js$/,
               include: paths.appLib,
               type: 'javascript/auto',
-              loader: 'exports-loader',
             },
             {
               test: /\.(js|mjs)$/,
