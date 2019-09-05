@@ -31,7 +31,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
       )}
     >
       <input {...getInputProps()} className="dn" />
-      <Logo width={500} />
+      <Logo className={styles.logo} />
       <t.Headline3 className="mt5 tc">
         Drag & drop or{' '}
         <button className={styles.selectButton} onClick={onClick}>

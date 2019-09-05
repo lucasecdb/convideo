@@ -538,7 +538,7 @@ int transcode(std::string input_filename, std::string output_filename, bool verb
     goto end;
 
   /* read all packets */
-  while (1) {
+  while (true) {
     if ((ret = av_read_frame(ifmt_ctx, &packet)) < 0)
       break;
     stream_index = packet.stream_index;
