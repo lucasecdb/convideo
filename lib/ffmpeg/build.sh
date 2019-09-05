@@ -11,6 +11,8 @@ export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib"
 apt-get update
 apt-get install -qqy pkg-config
 
+PROGRAM_NAME=convert
+
 FILTERS=anull,aresample,crop,null,overlay,scale
 DEMUXERS=avi,concat,flv,image2,matroska,mov,mp3,mpegps,ogg
 MUXERS=avi,flv,image2,matroska,mov,mp4,mp3,null,ogg
@@ -172,7 +174,7 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   --std=c++11 \
   -x c++ \
   -I ${PREFIX}/include \
-  ffmpeg.cpp \
+  convert.cpp \
   $(eval echo $PREFIX/lib/{$FFMPEG_LIBS}) \
   ${PREFIX}/lib/libmp3lame.so \
   ${PREFIX}/lib/libx264.so \
@@ -184,9 +186,9 @@ echo "=========================="
 (
   if [ $ASM ]; then
     mkdir -p asm
-    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o asm/ffmpeg.js
+    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o asm/$PROGRAM_NAME.js
   else
-    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o ffmpeg.js
+    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o $PROGRAM_NAME.js
   fi
 )
 echo "=========================="

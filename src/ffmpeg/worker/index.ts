@@ -1,10 +1,10 @@
 import { expose } from 'comlink'
 
-import wasmUrl from '../../../lib/ffmpeg/ffmpeg.wasm'
-import memUrl from '../../../lib/ffmpeg/asm/ffmpeg.js.mem'
+import wasmUrl from '../../../lib/ffmpeg/convert.wasm'
+import memUrl from '../../../lib/ffmpeg/asm/convert.js.mem'
 import { initEmscriptenModule } from '../util'
 
-type FFModule = import('../../../lib/ffmpeg/ffmpeg').FFModule
+type FFModule = import('../../../lib/ffmpeg/convert').FFModule
 
 export type ConvertOptions = {
   verbose?: boolean
@@ -16,7 +16,7 @@ let asmFFmpegModule: Promise<FFModule>
 const _convert = async (
   module: FFModule,
   data: ArrayBuffer,
-  { verbose = false }: ConvertOptions
+  { verbose = false }: ConvertOptions = {}
 ) => {
   try {
     const resultView = module.convert(new Uint8ClampedArray(data), verbose)
@@ -30,7 +30,7 @@ const _convert = async (
 
 const convert = async (data: ArrayBuffer, opts?: ConvertOptions) => {
   if (!ffmpegModule) {
-    const ffmpeg = (await import('../../../lib/ffmpeg/ffmpeg')).default
+    const ffmpeg = (await import('../../../lib/ffmpeg/convert')).default
     // eslint-disable-next-line require-atomic-updates
     ffmpegModule = initEmscriptenModule(ffmpeg, { wasmUrl })
   }
@@ -42,7 +42,7 @@ const convert = async (data: ArrayBuffer, opts?: ConvertOptions) => {
 
 const convertAsm = async (data: ArrayBuffer, opts?: ConvertOptions) => {
   if (!asmFFmpegModule) {
-    const ffmpegAsm = (await import('../../../lib/ffmpeg/asm/ffmpeg')).default
+    const ffmpegAsm = (await import('../../../lib/ffmpeg/asm/convert')).default
     // eslint-disable-next-line require-atomic-updates
     asmFFmpegModule = initEmscriptenModule(ffmpegAsm, { memUrl })
   }
