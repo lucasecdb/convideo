@@ -2,6 +2,7 @@ import classNames from 'classnames'
 import React from 'react'
 import { useDropzone } from 'react-dropzone'
 
+import { ReactComponent as Logo } from './assets/logo-full-white.svg'
 import * as t from './components/Typography'
 import styles from './FileUploader.module.scss'
 
@@ -22,17 +23,21 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
   return (
     <div
       {...rootProps}
-      className={classNames('min-vh-100 h-100 relative', styles.container, {
-        [styles.containerDragActive]: isDragActive,
-      })}
+      className={classNames(
+        'min-vh-100 h-100 relative flex flex-column items-center justify-center',
+        {
+          [styles.containerDragActive]: isDragActive,
+        }
+      )}
     >
       <input {...getInputProps()} className="dn" />
-      <t.Headline2 className={classNames(styles.intro, 'tc')}>
+      <Logo width={500} />
+      <t.Headline3 className="mt5 tc">
         Drag & drop or{' '}
         <button className={styles.selectButton} onClick={onClick}>
           select a video
         </button>
-      </t.Headline2>
+      </t.Headline3>
     </div>
   )
 }
