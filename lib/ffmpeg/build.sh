@@ -8,18 +8,21 @@ export CFLAGS="${OPTIMIZE} -I${PREFIX}/include"
 export CPPFLAGS="${OPTIMIZE} -I${PREFIX}/include"
 export LDFLAGS="${OPTIMIZE} -L${PREFIX}/lib"
 
-apt-get update
-apt-get install -qqy pkg-config
+test -n "$SKIP_BUILD" || (
+  apt-get update
+  apt-get install -qqy pkg-config
+)
 
 PROGRAM_NAME=convert
 
 FILTERS=anull,aresample,crop,null,overlay,scale
-DEMUXERS=avi,concat,flv,image2,matroska,mov,mp3,mpegps,ogg
-MUXERS=avi,flv,image2,matroska,mov,mp4,mp3,null,ogg
-ENCODERS=aac,ac3,libx264,libmp3lame
+DEMUXERS=avi,concat,flv,gif,image2,matroska,mov,mp3,mpegps,ogg
+MUXERS=avi,flv,gif,image2,matroska,mov,mp4,mp3,null,ogg
+ENCODERS=aac,ac3,gif,libx264,libmp3lame
 DECODERS="aac,\
 ac3,\
 ass,\
+gif,\
 h264,\
 hevc,\
 mjpeg,\
