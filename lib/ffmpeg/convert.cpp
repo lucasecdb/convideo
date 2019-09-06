@@ -1,5 +1,6 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <iostream>
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -11,20 +12,30 @@ extern "C" {
 }
 
 using namespace emscripten;
+using std::string;
 
 static AVFormatContext *ifmt_ctx;
 static AVFormatContext *ofmt_ctx;
+
 typedef struct FilteringContext {
   AVFilterContext *buffersink_ctx;
   AVFilterContext *buffersrc_ctx;
   AVFilterGraph *filter_graph;
 } FilteringContext;
 static FilteringContext *filter_ctx;
+
 typedef struct StreamContext {
   AVCodecContext *dec_ctx;
   AVCodecContext *enc_ctx;
 } StreamContext;
 static StreamContext *stream_ctx;
+
+struct Options {
+  bool verbose;
+  string outputFormat;
+  string videoEncoder;
+  string audioEncoder;
+};
 
 static int open_input_file(const char *filename)
 {
@@ -91,7 +102,10 @@ static int open_input_file(const char *filename)
   return 0;
 }
 
-static int open_output_file(const char *filename)
+static int open_output_file(string filename,
+    string format_name,
+    string video_encoder_name,
+    string audio_encoder_name)
 {
   AVStream *out_stream;
   AVStream *in_stream;
@@ -101,7 +115,7 @@ static int open_output_file(const char *filename)
   unsigned int i;
   ofmt_ctx = NULL;
 
-  avformat_alloc_output_context2(&ofmt_ctx, NULL, NULL, filename);
+  avformat_alloc_output_context2(&ofmt_ctx, NULL, format_name.c_str(), filename.c_str());
 
   if (!ofmt_ctx) {
     av_log(NULL, AV_LOG_ERROR, "Could not create output context\n");
@@ -119,10 +133,13 @@ static int open_output_file(const char *filename)
     in_stream = ifmt_ctx->streams[i];
     dec_ctx = stream_ctx[i].dec_ctx;
 
-    if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO
-        || dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
-      /* in this example, we choose transcoding to same codec */
-      encoder = avcodec_find_encoder(dec_ctx->codec_id);
+    int codec_type = dec_ctx->codec_type;
+
+    if (codec_type == AVMEDIA_TYPE_VIDEO || codec_type == AVMEDIA_TYPE_AUDIO) {
+      encoder = avcodec_find_encoder_by_name(codec_type == AVMEDIA_TYPE_VIDEO
+          ? video_encoder_name.c_str()
+          : audio_encoder_name.c_str()
+      );
 
       if (!encoder) {
         av_log(NULL, AV_LOG_FATAL, "Necessary encoder not found\n");
@@ -142,11 +159,14 @@ static int open_output_file(const char *filename)
         enc_ctx->height = dec_ctx->height;
         enc_ctx->width = dec_ctx->width;
         enc_ctx->sample_aspect_ratio = dec_ctx->sample_aspect_ratio;
-        /* take first format from list of supported formats */
-        if (encoder->pix_fmts)
+
+        // take first available format from list of supported formats
+        if (encoder->pix_fmts) {
           enc_ctx->pix_fmt = encoder->pix_fmts[0];
-        else
+        } else {
           enc_ctx->pix_fmt = dec_ctx->pix_fmt;
+        }
+
         /* video time_base can be set to whatever is handy and supported by encoder */
         enc_ctx->time_base = av_inv_q(dec_ctx->framerate);
       } else {
@@ -194,12 +214,12 @@ static int open_output_file(const char *filename)
     }
   }
 
-  av_dump_format(ofmt_ctx, 0, filename, 1);
+  av_dump_format(ofmt_ctx, 0, filename.c_str(), 1);
 
   if (!(ofmt_ctx->oformat->flags & AVFMT_NOFILE)) {
-    ret = avio_open(&ofmt_ctx->pb, filename, AVIO_FLAG_WRITE);
+    ret = avio_open(&ofmt_ctx->pb, filename.c_str(), AVIO_FLAG_WRITE);
     if (ret < 0) {
-      av_log(NULL, AV_LOG_ERROR, "Could not open output file '%s'", filename);
+      av_log(NULL, AV_LOG_ERROR, "Could not open output file '%s'", filename.c_str());
       return ret;
     }
   }
@@ -513,7 +533,7 @@ static int flush_encoder(unsigned int stream_index)
   return ret;
 }
 
-int transcode(std::string input_filename, std::string output_filename, bool verbose)
+int transcode(string input_filename, string output_filename, struct Options options)
 {
   int ret;
   AVPacket packet = { .data = NULL, .size = 0 };
@@ -524,7 +544,7 @@ int transcode(std::string input_filename, std::string output_filename, bool verb
   int got_frame;
   int (*dec_func)(AVCodecContext *, AVFrame *, int *, const AVPacket *);
 
-  if (verbose) {
+  if (options.verbose) {
     av_log_set_level(AV_LOG_VERBOSE);
   } else {
     av_log_set_level(AV_LOG_INFO);
@@ -532,7 +552,11 @@ int transcode(std::string input_filename, std::string output_filename, bool verb
 
   if ((ret = open_input_file(input_filename.c_str())) < 0)
     goto end;
-  if ((ret = open_output_file(output_filename.c_str())) < 0)
+  if ((ret = open_output_file(
+          output_filename,
+          options.outputFormat,
+          options.videoEncoder,
+          options.audioEncoder)) < 0)
     goto end;
   if ((ret = init_filters()) < 0)
     goto end;
@@ -625,18 +649,18 @@ end:
 
 uint8_t* result;
 
-val convert(std::string video, bool verbose) {
-  remove("input.mp4");
-  remove("output.mkv");
+val convert(string video, struct Options options) {
+  remove("input");
+  remove("output");
 
-  FILE* infile = fopen("input.mp4", "wb");
+  FILE* infile = fopen("input", "wb");
   fwrite(video.c_str(), video.length(), 1, infile);
   fflush(infile);
   fclose(infile);
 
-  transcode("input.mp4", "output.mkv", verbose);
+  transcode("input", "output", options);
 
-  FILE *outfile = fopen("output.mkv", "rb");
+  FILE *outfile = fopen("output", "rb");
 
   fseek(outfile, 0, SEEK_END);
   long fsize = ftell(outfile);
@@ -654,6 +678,12 @@ void free_result() {
 }
 
 EMSCRIPTEN_BINDINGS(ffmpeg) {
+  value_object<Options>("Options")
+    .field("verbose", &Options::verbose)
+    .field("outputFormat", &Options::outputFormat)
+    .field("videoEncoder", &Options::videoEncoder)
+    .field("audioEncoder", &Options::audioEncoder);
+
   function("convert", &convert);
   function("free_result", &free_result);
 }

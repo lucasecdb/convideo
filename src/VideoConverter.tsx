@@ -43,6 +43,9 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       const convertedVideoBuffer = await convert(videoArrayBuffer, {
         asm: asmEnabled,
         verbose,
+        outputFormat: 'matroska',
+        videoEncoder: 'libx264',
+        audioEncoder: 'aac',
       })
 
       const end = performance.now()

@@ -5,10 +5,7 @@ import memUrl from '../../../lib/ffmpeg/asm/convert.js.mem'
 import { initEmscriptenModule } from '../util'
 
 type FFModule = import('../../../lib/ffmpeg/convert').FFModule
-
-export type ConvertOptions = {
-  verbose?: boolean
-}
+export type ConvertOptions = import('../../../lib/ffmpeg/convert').ConvertOptions
 
 let ffmpegModule: Promise<FFModule>
 let asmFFmpegModule: Promise<FFModule>
@@ -16,10 +13,10 @@ let asmFFmpegModule: Promise<FFModule>
 const _convert = async (
   module: FFModule,
   data: ArrayBuffer,
-  { verbose = false }: ConvertOptions = {}
+  opts: ConvertOptions
 ) => {
   try {
-    const resultView = module.convert(new Uint8ClampedArray(data), verbose)
+    const resultView = module.convert(new Uint8ClampedArray(data), opts)
     const result = new Uint8ClampedArray(resultView)
 
     return result.buffer as ArrayBuffer
@@ -28,7 +25,7 @@ const _convert = async (
   }
 }
 
-const convert = async (data: ArrayBuffer, opts?: ConvertOptions) => {
+const convert = async (data: ArrayBuffer, opts: ConvertOptions) => {
   if (!ffmpegModule) {
     const ffmpeg = (await import('../../../lib/ffmpeg/convert')).default
     // eslint-disable-next-line require-atomic-updates
@@ -40,7 +37,7 @@ const convert = async (data: ArrayBuffer, opts?: ConvertOptions) => {
   return _convert(module, data, opts)
 }
 
-const convertAsm = async (data: ArrayBuffer, opts?: ConvertOptions) => {
+const convertAsm = async (data: ArrayBuffer, opts: ConvertOptions) => {
   if (!asmFFmpegModule) {
     const ffmpegAsm = (await import('../../../lib/ffmpeg/asm/convert')).default
     // eslint-disable-next-line require-atomic-updates
