@@ -2,6 +2,7 @@ import { wrap } from 'comlink'
 
 type FFmpegWorkerAPI = import('./worker').FFmpegWorkerAPI
 type ConvertOptions = import('./worker').ConvertOptions
+export type CodecDescription = import('./worker').CodecDescription
 
 interface Options extends ConvertOptions {
   asm?: boolean
@@ -24,4 +25,13 @@ export async function convert(
   }
 
   return workerAPI.convert(data, opts)
+}
+
+export async function listCodecs() {
+  if (!worker) {
+    worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
+    workerAPI = wrap<FFmpegWorkerAPI>(worker)
+  }
+
+  return workerAPI.listCodecs()
 }

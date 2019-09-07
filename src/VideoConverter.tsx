@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import Button from './components/Button'
 import Checkbox from './components/Checkbox'
@@ -7,7 +7,7 @@ import FormField from './components/FormField'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
-import { convert } from './ffmpeg'
+import { convert, listCodecs, CodecDescription } from './ffmpeg'
 import Icon from './components/Icon'
 import { downloadFile } from 'utils'
 
@@ -19,9 +19,11 @@ interface Props {
 }
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
-  const [loading, setLoading] = useState(false)
+  const [convertInProgress, setConvertInProgress] = useState(false)
+  const [codecs, setCodecs] = useState<CodecDescription[] | null>(null)
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
+
   const videoUrl = URL.createObjectURL(video)
 
   const handleAsmToggle = () => {
@@ -35,7 +37,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
 
-    setLoading(true)
+    setConvertInProgress(true)
 
     try {
       const start = performance.now()
@@ -56,8 +58,37 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
       downloadFile('output.mkv', convertedVideoBuffer)
     } finally {
-      setLoading(false)
+      setConvertInProgress(false)
     }
+  }
+
+  useEffect(() => {
+    let current = true
+
+    const load = async () => {
+      const loadedCodecs = await listCodecs()
+
+      if (!current) {
+        return
+      }
+
+      setCodecs(loadedCodecs)
+    }
+
+    load()
+
+    return () => {
+      current = false
+    }
+  }, [])
+
+  if (codecs === null) {
+    return (
+      <div className="flex flex-column items-center justify-center min-vh-100">
+        <CircularProgress size={48} />
+        <t.Subtitle1 className="mt3">Loading codecs</t.Subtitle1>
+      </div>
+    )
   }
 
   return (
@@ -105,12 +136,12 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         </div>
       </div>
       <Button
-        disabled={loading}
+        disabled={convertInProgress}
         raised
         className="mt3 f6 self-center"
         onClick={handleConvert}
       >
-        {loading ? (
+        {convertInProgress ? (
           <CircularProgress className={styles.spinner} size={18} />
         ) : (
           'Convert'

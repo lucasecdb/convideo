@@ -174,7 +174,7 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   -s INVOKE_RUN=0 \
   -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORT_NAME=\"ffmpeg\" \
-  --std=c++11 \
+  --std=c++17 \
   -x c++ \
   -I ${PREFIX}/include \
   convert.cpp \
