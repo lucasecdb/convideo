@@ -727,6 +727,13 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .field("videoEncoder", &Options::videoEncoder)
     .field("audioEncoder", &Options::audioEncoder);
 
+  constant("AV_CODEC_PROP_INTRA_ONLY", AV_CODEC_PROP_INTRA_ONLY);
+  constant("AV_CODEC_PROP_LOSSY", AV_CODEC_PROP_LOSSY);
+  constant("AV_CODEC_PROP_LOSSLESS", AV_CODEC_PROP_LOSSLESS);
+  constant("AV_CODEC_PROP_REORDER", AV_CODEC_PROP_REORDER);
+  constant("AV_CODEC_PROP_BITMAP_SUB", AV_CODEC_PROP_BITMAP_SUB);
+  constant("AV_CODEC_PROP_TEXT_SUB", AV_CODEC_PROP_TEXT_SUB);
+
   function("convert", &convert);
   function("free_result", &free_result);
   function("list_codecs", &list_codecs);

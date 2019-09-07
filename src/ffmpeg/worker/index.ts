@@ -11,7 +11,13 @@ export interface CodecDescription {
   id: number
   name: string
   longName: string
-  props: number
+  props: {
+    intraOnly: boolean
+    lossy: boolean
+    lossless: boolean
+    bitmapSub: boolean
+    textSub: boolean
+  }
   type: number
 }
 
@@ -80,7 +86,13 @@ const listCodecs = async () => {
     codecs.push({
       id: rawCodec.id.value,
       name: rawCodec.name,
-      props: rawCodec.props,
+      props: {
+        intraOnly: !!(rawCodec.props & module.AV_CODEC_PROP_INTRA_ONLY),
+        lossy: !!(rawCodec.props & module.AV_CODEC_PROP_LOSSY),
+        lossless: !!(rawCodec.props & module.AV_CODEC_PROP_LOSSLESS),
+        bitmapSub: !!(rawCodec.props & module.AV_CODEC_PROP_BITMAP_SUB),
+        textSub: !!(rawCodec.props & module.AV_CODEC_PROP_TEXT_SUB),
+      },
       longName: rawCodec.long_name,
       type: rawCodec.type.value,
     })
