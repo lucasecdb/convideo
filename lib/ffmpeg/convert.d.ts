@@ -16,6 +16,7 @@ export interface CodecDescription {
   long_name: string
   props: number
   type: { value: number }
+  mime_types: Vector<string>
 }
 
 export interface FFModule extends EmscriptenModule {

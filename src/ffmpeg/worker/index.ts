@@ -19,6 +19,7 @@ export interface CodecDescription {
     textSub: boolean
   }
   type: number
+  mimeTypes: string[]
 }
 
 let ffmpegModule: Promise<FFModule>
@@ -83,6 +84,14 @@ const listCodecs = async () => {
       continue
     }
 
+    const mimeTypes: string[] = []
+
+    for (let j = 0; j < rawCodec.mime_types.size(); j++) {
+      const mimeType = rawCodec.mime_types.get(i)
+
+      mimeTypes.push(mimeType)
+    }
+
     codecs.push({
       id: rawCodec.id.value,
       name: rawCodec.name,
@@ -95,6 +104,7 @@ const listCodecs = async () => {
       },
       longName: rawCodec.long_name,
       type: rawCodec.type.value,
+      mimeTypes,
     })
   }
 

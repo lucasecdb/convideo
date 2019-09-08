@@ -1,6 +1,5 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
-#include <iostream>
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -167,8 +166,13 @@ static int open_output_file(string filename,
           enc_ctx->pix_fmt = dec_ctx->pix_fmt;
         }
 
-        /* video time_base can be set to whatever is handy and supported by encoder */
-        enc_ctx->time_base = av_inv_q(dec_ctx->framerate);
+        if (encoder->supported_framerates) {
+          enc_ctx->framerate = encoder->supported_framerates[0];
+        } else {
+          enc_ctx->framerate = dec_ctx->framerate;
+        }
+
+        enc_ctx->time_base = av_inv_q(enc_ctx->framerate);
       } else {
         enc_ctx->sample_rate = dec_ctx->sample_rate;
         enc_ctx->channel_layout = dec_ctx->channel_layout;
@@ -197,6 +201,8 @@ static int open_output_file(string filename,
       }
 
       out_stream->time_base = enc_ctx->time_base;
+      out_stream->r_frame_rate = in_stream->r_frame_rate;
+
       stream_ctx[i].enc_ctx = enc_ctx;
     } else if (dec_ctx->codec_type == AVMEDIA_TYPE_UNKNOWN) {
       av_log(NULL, AV_LOG_FATAL, "Elementary stream #%d is of unknown type, cannot proceed\n", i);
@@ -432,8 +438,6 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index, in
   if (!got_frame)
     got_frame = &got_frame_local;
 
-  av_log(NULL, AV_LOG_VERBOSE, "Encoding frame\n");
-
   /* encode filtered frame */
   enc_pkt.data = NULL;
   enc_pkt.size = 0;
@@ -459,7 +463,6 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index, in
     ofmt_ctx->streams[stream_index]->time_base
   );
 
-  av_log(NULL, AV_LOG_DEBUG, "Muxing frame\n");
   /* mux encoded frame */
   ret = av_interleaved_write_frame(ofmt_ctx, &enc_pkt);
 
@@ -470,7 +473,6 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
 {
   int ret;
   AVFrame *filt_frame;
-  av_log(NULL, AV_LOG_VERBOSE, "Pushing decoded frame to filters\n");
 
   /* push the decoded frame into the filtergraph */
   ret = av_buffersrc_add_frame_flags(filter_ctx[stream_index].buffersrc_ctx,
@@ -490,7 +492,6 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
       break;
     }
 
-    av_log(NULL, AV_LOG_VERBOSE, "Pulling filtered frame from filters\n");
     ret = av_buffersink_get_frame(filter_ctx[stream_index].buffersink_ctx,
         filt_frame);
 
@@ -523,7 +524,6 @@ static int flush_encoder(unsigned int stream_index)
         AV_CODEC_CAP_DELAY))
     return 0;
   while (1) {
-    av_log(NULL, AV_LOG_VERBOSE, "Flushing stream #%u encoder\n", stream_index);
     ret = encode_write_frame(NULL, stream_index, &got_frame);
     if (ret < 0)
       break;
@@ -545,7 +545,7 @@ int transcode(string input_filename, string output_filename, struct Options opti
   int (*dec_func)(AVCodecContext *, AVFrame *, int *, const AVPacket *);
 
   if (options.verbose) {
-    av_log_set_level(AV_LOG_VERBOSE);
+    av_log_set_level(AV_LOG_DEBUG);
   } else {
     av_log_set_level(AV_LOG_INFO);
   }
@@ -567,10 +567,7 @@ int transcode(string input_filename, string output_filename, struct Options opti
       break;
     stream_index = packet.stream_index;
     type = ifmt_ctx->streams[packet.stream_index]->codecpar->codec_type;
-    av_log(NULL, AV_LOG_DEBUG, "Demuxer gave frame of stream_index %u\n",
-        stream_index);
     if (filter_ctx[stream_index].filter_graph) {
-      av_log(NULL, AV_LOG_DEBUG, "Going to reencode&filter the frame\n");
       frame = av_frame_alloc();
       if (!frame) {
         ret = AVERROR(ENOMEM);
@@ -697,12 +694,24 @@ string get_avcodec_long_name(const AVCodecDescriptor& c) {
   return c.long_name;
 }
 
-/*string get_avcodec_mime_types(const AVCodecDescriptor& c) {
-  return c.mime_types;
-}*/
+std::vector<string> get_avcodec_mime_types(const AVCodecDescriptor& c) {
+  std::vector<string> types;
+
+  if (!c.mime_types) {
+    return types;
+  }
+
+  for (auto mime_type = c.mime_types; *mime_type != NULL; mime_type++) {
+    types.push_back(string(*mime_type));
+  }
+
+  return types;
+}
 
 EMSCRIPTEN_BINDINGS(ffmpeg) {
   register_vector<AVCodecDescriptor>("VectorCodecDescriptor");
+
+  register_vector<string>("VectorString");
 
   enum_<AVMediaType>("AVMediaType")
     .value("AVMEDIA_TYPE_UNKNOWN", AVMEDIA_TYPE_UNKNOWN)
@@ -718,8 +727,8 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .property("type", &AVCodecDescriptor::type)
     .property("name", &get_avcodec_name)
     .property("long_name", &get_avcodec_long_name)
-    .property("props", &AVCodecDescriptor::props);
-    //.property("mime_types", &get_avcodec_mime_types);
+    .property("props", &AVCodecDescriptor::props)
+    .property("mime_types", &get_avcodec_mime_types);
 
   value_object<Options>("Options")
     .field("verbose", &Options::verbose)
