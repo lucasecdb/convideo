@@ -31,11 +31,7 @@
 }
 
 .logo {
-  width: 500px;
-
-  @media (max-width: 900px) {
-    width: 400px;
-  }
+  width: 400px;
 
   @media (max-width: 600px) {
     width: 320px;
