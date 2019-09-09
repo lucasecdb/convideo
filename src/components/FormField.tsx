@@ -12,6 +12,7 @@ interface InputRef {
 }
 
 interface Props {
+  className?: string
   label: React.ReactNode
   input: React.ReactElement<React.RefAttributes<InputRef>>
   inputId?: string
@@ -19,12 +20,13 @@ interface Props {
 }
 
 const FormField: React.FC<Props> = ({
+  className,
   label,
   alignEnd = false,
   input,
   inputId,
 }) => {
-  const classes = classNames(cssClasses.ROOT, {
+  const classes = classNames(cssClasses.ROOT, className, {
     'mdc-form-field--align-end': alignEnd,
   })
   const inputRef = useRef<InputRef>(null)

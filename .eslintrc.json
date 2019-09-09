@@ -11,6 +11,7 @@
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
     "jsx-a11y/media-has-caption": "off",
+    "jsx-a11y/no-onchange": "off",
     "no-console": "off"
   }
 }

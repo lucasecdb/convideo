@@ -12,9 +12,14 @@ export interface Codec {
   name: string
   longName: string
   capabilities: {
+    drawHorizBand: boolean
+    dr1: boolean
+    truncated: boolean
+    delay: boolean
+    subFrames: boolean
+    experimental: boolean
     intraOnly: boolean
     lossless: boolean
-    experimental: boolean
     hardware: boolean
     hybrid: boolean
   }
@@ -75,9 +80,13 @@ class FFmpeg {
       const resultView = instance.convert(new Uint8ClampedArray(data), opts)
       const result = new Uint8ClampedArray(resultView)
 
-      return result.buffer as ArrayBuffer
-    } finally {
       instance.free_result()
+
+      return result.buffer as ArrayBuffer
+    } catch (_) {
+      instance.free_result()
+
+      return null
     }
   }
 
@@ -111,11 +120,18 @@ class FFmpeg {
         id: rawCodec.id.value,
         name: rawCodec.name,
         capabilities: {
-          intraOnly: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_INTRA_ONLY),
-          lossless: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_LOSSLESS),
+          drawHorizBand: !!(
+            rawCodec.capabilities & wasm.AV_CODEC_CAP_DRAW_HORIZ_BAND
+          ),
+          dr1: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_DR1),
+          truncated: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_TRUNCATED),
+          delay: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_DELAY),
+          subFrames: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_SUBFRAMES),
           experimental: !!(
             rawCodec.capabilities & wasm.AV_CODEC_CAP_EXPERIMENTAL
           ),
+          intraOnly: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_INTRA_ONLY),
+          lossless: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_LOSSLESS),
           hardware: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HARDWARE),
           hybrid: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HYBRID),
         },

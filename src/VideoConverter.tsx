@@ -25,6 +25,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
 
+  const [selectedFormat, setSelectedFormat] = useState<number>(0)
+  const [selectedVideoCodec, setSelectedVideoCodec] = useState<number>(0)
+  const [selectedAudioCodec, setSelectedAudioCodec] = useState<number>(0)
+
   const videoUrl = URL.createObjectURL(video)
 
   const handleAsmToggle = () => {
@@ -34,6 +38,14 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const handleVerboseToggle = () => {
     setVerbose(prevVerbose => !prevVerbose)
   }
+
+  const format = muxers ? muxers[selectedFormat] : null
+
+  const videoCodecs = codecs ? codecs.filter(codec => codec.type === 0) : []
+  const videoCodec = videoCodecs ? videoCodecs[selectedVideoCodec] : null
+
+  const audioCodecs = codecs ? codecs.filter(codec => codec.type === 1) : []
+  const audioCodec = audioCodecs ? audioCodecs[selectedAudioCodec] : null
 
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
@@ -46,9 +58,9 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       const convertedVideoBuffer = await convert(videoArrayBuffer, {
         asm: asmEnabled,
         verbose,
-        outputFormat: 'mov',
-        videoEncoder: 'libx264',
-        audioEncoder: 'aac',
+        outputFormat: format.name,
+        videoEncoder: videoCodec.name,
+        audioEncoder: audioCodec.name,
       })
 
       const end = performance.now()
@@ -57,7 +69,18 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
       console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
 
-      downloadFile('output.mov', convertedVideoBuffer)
+      if (convertedVideoBuffer === null) {
+        return
+      }
+
+      const [defaultExtension] = format.extensions
+      const outputFilename =
+        'output' + (defaultExtension.length ? `.${defaultExtension}` : '')
+
+      downloadFile(outputFilename, convertedVideoBuffer)
+    } catch (err) {
+      console.error(err)
+      setConvertInProgress(false)
     } finally {
       setConvertInProgress(false)
     }
@@ -114,7 +137,51 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           )}
         >
           <t.Subtitle1>Conversion options</t.Subtitle1>
+
+          <label className="flex flex-column mt3">
+            <t.Caption>Format</t.Caption>
+            <select
+              value={selectedFormat}
+              onChange={evt => setSelectedFormat(Number(evt.target.value))}
+            >
+              {muxers.map((muxer, index) => (
+                <option key={muxer.name} value={index}>
+                  {muxer.longName}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex flex-column mt3">
+            <t.Caption>Video Codec</t.Caption>
+            <select
+              value={selectedVideoCodec}
+              onChange={evt => setSelectedVideoCodec(Number(evt.target.value))}
+            >
+              {videoCodecs.map((codec, index) => (
+                <option key={index} value={index}>
+                  {codec.longName}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex flex-column mt3">
+            <t.Caption>Audio Codec</t.Caption>
+            <select
+              value={selectedAudioCodec}
+              onChange={evt => setSelectedAudioCodec(Number(evt.target.value))}
+            >
+              {audioCodecs.map((codec, index) => (
+                <option key={index} value={index}>
+                  {codec.longName}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <FormField
+            className="mt3"
             input={
               <Checkbox
                 nativeControlId="asm"
@@ -126,6 +193,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             label={<span>Use asm.js</span>}
             inputId="asm"
           />
+
           <FormField
             input={
               <Checkbox
