@@ -135,13 +135,14 @@ static int open_output_file(string filename,
     int codec_type = dec_ctx->codec_type;
 
     if (codec_type == AVMEDIA_TYPE_VIDEO || codec_type == AVMEDIA_TYPE_AUDIO) {
-      encoder = avcodec_find_encoder_by_name(codec_type == AVMEDIA_TYPE_VIDEO
-          ? video_encoder_name.c_str()
-          : audio_encoder_name.c_str()
-      );
+      const char* encoder_name = codec_type == AVMEDIA_TYPE_VIDEO
+        ? video_encoder_name.c_str()
+        : audio_encoder_name.c_str();
+
+      encoder = avcodec_find_encoder_by_name(encoder_name);
 
       if (!encoder) {
-        av_log(NULL, AV_LOG_FATAL, "Necessary encoder not found\n");
+        av_log(NULL, AV_LOG_FATAL, "Necessary encoder %s not found\n", encoder_name);
         return AVERROR_INVALIDDATA;
       }
 
@@ -685,19 +686,21 @@ val convert(string video, struct Options options) {
   fflush(infile);
   fclose(infile);
 
-  transcode("input", "output", options);
+  if (transcode("input", "output", options) > 0) {
+    FILE *outfile = fopen("output", "rb");
 
-  FILE *outfile = fopen("output", "rb");
+    fseek(outfile, 0, SEEK_END);
+    long fsize = ftell(outfile);
 
-  fseek(outfile, 0, SEEK_END);
-  long fsize = ftell(outfile);
+    result = (uint8_t*) malloc(fsize);
 
-  result = (uint8_t*) malloc(fsize);
+    fseek(outfile, 0, SEEK_SET);
+    fread(result, fsize, 1, outfile);
 
-  fseek(outfile, 0, SEEK_SET);
-  fread(result, fsize, 1, outfile);
+    return val(typed_memory_view(fsize, result));
+  }
 
-  return val(typed_memory_view(fsize, result));
+  return val(NULL);
 }
 
 void free_result() {

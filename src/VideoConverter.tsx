@@ -60,38 +60,33 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
     setConvertInProgress(true)
 
-    try {
-      const start = performance.now()
+    const start = performance.now()
 
-      const convertedVideoBuffer = await convert(videoArrayBuffer, {
-        asm: asmEnabled,
-        verbose,
-        outputFormat: format.name,
-        videoEncoder: videoCodec.name,
-        audioEncoder: audioCodec.name,
-      })
+    const convertedVideoBuffer = await convert(videoArrayBuffer, {
+      asm: asmEnabled,
+      verbose,
+      outputFormat: format.name,
+      videoEncoder: videoCodec.name,
+      audioEncoder: audioCodec.name,
+    })
 
-      const end = performance.now()
+    const end = performance.now()
 
-      const elapsedTime = (end - start) / 1000
+    const elapsedTime = (end - start) / 1000
 
-      console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
+    console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
 
-      if (convertedVideoBuffer === null) {
-        return
-      }
+    setConvertInProgress(false)
 
-      const [defaultExtension] = format.extensions
-      const outputFilename =
-        'output' + (defaultExtension.length ? `.${defaultExtension}` : '')
-
-      downloadFile(outputFilename, convertedVideoBuffer)
-    } catch (err) {
-      console.error(err)
-      setConvertInProgress(false)
-    } finally {
-      setConvertInProgress(false)
+    if (convertedVideoBuffer === null || !convertedVideoBuffer.byteLength) {
+      return
     }
+
+    const [defaultExtension] = format.extensions
+    const outputFilename =
+      'output' + (defaultExtension.length ? `.${defaultExtension}` : '')
+
+    downloadFile(outputFilename, convertedVideoBuffer)
   }
 
   useEffect(() => {
