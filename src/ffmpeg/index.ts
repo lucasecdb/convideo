@@ -2,7 +2,8 @@ import { wrap } from 'comlink'
 
 type FFmpegWorkerAPI = import('./worker').FFmpegWorkerAPI
 type ConvertOptions = import('./worker').ConvertOptions
-export type CodecDescription = import('./worker').CodecDescription
+
+export type Codec = import('./worker').Codec
 
 interface Options extends ConvertOptions {
   asm?: boolean

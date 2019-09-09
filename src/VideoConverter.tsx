@@ -45,7 +45,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       const convertedVideoBuffer = await convert(videoArrayBuffer, {
         asm: asmEnabled,
         verbose,
-        outputFormat: 'matroska',
+        outputFormat: 'mov',
         videoEncoder: 'libx264',
         audioEncoder: 'aac',
       })
@@ -56,7 +56,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
       console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
 
-      downloadFile('output.mkv', convertedVideoBuffer)
+      downloadFile('output.mov', convertedVideoBuffer)
     } finally {
       setConvertInProgress(false)
     }
