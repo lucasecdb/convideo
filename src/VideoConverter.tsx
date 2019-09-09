@@ -25,9 +25,11 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
 
-  const [selectedFormat, setSelectedFormat] = useState<number>(0)
-  const [selectedVideoCodec, setSelectedVideoCodec] = useState<number>(0)
-  const [selectedAudioCodec, setSelectedAudioCodec] = useState<number>(0)
+  const [selectedFormat, setSelectedFormat] = useState<string>('matroska')
+  const [selectedVideoCodec, setSelectedVideoCodec] = useState<string>(
+    'libx264'
+  )
+  const [selectedAudioCodec, setSelectedAudioCodec] = useState<string>('aac')
 
   const videoUrl = URL.createObjectURL(video)
 
@@ -39,13 +41,19 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     setVerbose(prevVerbose => !prevVerbose)
   }
 
-  const format = muxers ? muxers[selectedFormat] : null
+  const format = muxers
+    ? muxers.find(muxer => muxer.name === selectedFormat)
+    : null
 
   const videoCodecs = codecs ? codecs.filter(codec => codec.type === 0) : []
-  const videoCodec = videoCodecs ? videoCodecs[selectedVideoCodec] : null
+  const videoCodec = videoCodecs
+    ? videoCodecs.find(codec => codec.name === selectedVideoCodec)
+    : null
 
   const audioCodecs = codecs ? codecs.filter(codec => codec.type === 1) : []
-  const audioCodec = audioCodecs ? audioCodecs[selectedAudioCodec] : null
+  const audioCodec = audioCodecs
+    ? audioCodecs.find(codec => codec.name === selectedAudioCodec)
+    : null
 
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
@@ -142,10 +150,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             <t.Caption>Format</t.Caption>
             <select
               value={selectedFormat}
-              onChange={evt => setSelectedFormat(Number(evt.target.value))}
+              onChange={evt => setSelectedFormat(evt.target.value)}
             >
-              {muxers.map((muxer, index) => (
-                <option key={muxer.name} value={index}>
+              {muxers.map(muxer => (
+                <option key={muxer.name} value={muxer.name}>
                   {muxer.longName}
                 </option>
               ))}
@@ -156,10 +164,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             <t.Caption>Video Codec</t.Caption>
             <select
               value={selectedVideoCodec}
-              onChange={evt => setSelectedVideoCodec(Number(evt.target.value))}
+              onChange={evt => setSelectedVideoCodec(evt.target.value)}
             >
-              {videoCodecs.map((codec, index) => (
-                <option key={index} value={index}>
+              {videoCodecs.map(codec => (
+                <option key={codec.id} value={codec.name}>
                   {codec.longName}
                 </option>
               ))}
@@ -170,10 +178,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             <t.Caption>Audio Codec</t.Caption>
             <select
               value={selectedAudioCodec}
-              onChange={evt => setSelectedAudioCodec(Number(evt.target.value))}
+              onChange={evt => setSelectedAudioCodec(evt.target.value)}
             >
-              {audioCodecs.map((codec, index) => (
-                <option key={index} value={index}>
+              {audioCodecs.map(codec => (
+                <option key={codec.id} value={codec.name}>
                   {codec.longName}
                 </option>
               ))}
