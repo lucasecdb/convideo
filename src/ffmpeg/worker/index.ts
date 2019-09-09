@@ -112,7 +112,10 @@ class FFmpeg {
     for (let i = 0; i < codecsVector.size(); i++) {
       const rawCodec = codecsVector.get(i)
 
-      if (!rawCodec.id) {
+      if (
+        !rawCodec.id ||
+        codecs.findIndex(codec => codec.id === rawCodec.id.value) > -1
+      ) {
         continue
       }
 
