@@ -7,7 +7,7 @@ import FormField from './components/FormField'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
-import { convert, listCodecs, CodecDescription } from './ffmpeg'
+import { convert, listCodecs, Codec, listMuxers, Muxer } from './ffmpeg'
 import Icon from './components/Icon'
 import { downloadFile } from 'utils'
 
@@ -20,7 +20,8 @@ interface Props {
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [convertInProgress, setConvertInProgress] = useState(false)
-  const [codecs, setCodecs] = useState<CodecDescription[] | null>(null)
+  const [codecs, setCodecs] = useState<Codec[] | null>(null)
+  const [muxers, setMuxers] = useState<Muxer[] | null>(null)
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
 
@@ -66,13 +67,17 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     let current = true
 
     const load = async () => {
-      const loadedCodecs = await listCodecs()
+      const [loadedCodecs, loadedMuxers] = await Promise.all([
+        listCodecs(),
+        listMuxers(),
+      ])
 
       if (!current) {
         return
       }
 
       setCodecs(loadedCodecs)
+      setMuxers(loadedMuxers)
     }
 
     load()
@@ -82,11 +87,11 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     }
   }, [])
 
-  if (codecs === null) {
+  if (codecs === null || muxers === null) {
     return (
       <div className="flex flex-column items-center justify-center min-vh-100">
         <CircularProgress size={48} />
-        <t.Subtitle1 className="mt3">Loading codecs</t.Subtitle1>
+        <t.Subtitle1 className="mt3">Loading codecs and formats</t.Subtitle1>
       </div>
     )
   }

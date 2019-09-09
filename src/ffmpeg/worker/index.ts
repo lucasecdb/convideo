@@ -21,7 +21,16 @@ export interface Codec {
   type: number
 }
 
-class Worker {
+export interface Muxer {
+  name: string
+  longName: string
+  mimeType: string
+  extensions: string[]
+  audioCodec: number
+  videoCodec: number
+}
+
+class FFmpeg {
   private _wasmModule: Promise<FFModule> | undefined
   private _asmModule: Promise<FFModule> | undefined
 
@@ -29,10 +38,10 @@ class Worker {
     if (!this._wasmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
         import('../../../lib/ffmpeg/convert').then(
-          ({ default: defaultModule }) => resolve(defaultModule)
+          ({ default: defaultValue }) => resolve(defaultValue)
         )
-      }).then(module => {
-        this._wasmModule = initEmscriptenModule(module, { wasmUrl })
+      }).then(instance => {
+        this._wasmModule = initEmscriptenModule(instance, { wasmUrl })
 
         return this._wasmModule
       })
@@ -45,10 +54,10 @@ class Worker {
     if (!this._asmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
         import('../../../lib/ffmpeg/asm/convert').then(
-          ({ default: defaultModule }) => resolve(defaultModule)
+          ({ default: defaultValue }) => resolve(defaultValue)
         )
-      }).then(module => {
-        this._asmModule = initEmscriptenModule(module, { memUrl })
+      }).then(instance => {
+        this._asmModule = initEmscriptenModule(instance, { memUrl })
 
         return this._asmModule
       })
@@ -58,36 +67,36 @@ class Worker {
   }
 
   private _convert = async (
-    module: FFModule,
+    instance: FFModule,
     data: ArrayBuffer,
     opts: ConvertOptions
   ) => {
     try {
-      const resultView = module.convert(new Uint8ClampedArray(data), opts)
+      const resultView = instance.convert(new Uint8ClampedArray(data), opts)
       const result = new Uint8ClampedArray(resultView)
 
       return result.buffer as ArrayBuffer
     } finally {
-      module.free_result()
+      instance.free_result()
     }
   }
 
   public convert = async (data: ArrayBuffer, opts: ConvertOptions) => {
-    const module = await this.wasm
+    const wasm = await this.wasm
 
-    return this._convert(module, data, opts)
+    return this._convert(wasm, data, opts)
   }
 
   public convertAsm = async (data: ArrayBuffer, opts: ConvertOptions) => {
-    const module = await this.asm
+    const asm = await this.asm
 
-    return this._convert(module, data, opts)
+    return this._convert(asm, data, opts)
   }
 
   public listCodecs = async () => {
-    const module = await this.wasm
+    const wasm = await this.wasm
 
-    const codecsVector = module.list_codecs()
+    const codecsVector = wasm.list_codecs()
 
     const codecs: Codec[] = []
 
@@ -102,13 +111,13 @@ class Worker {
         id: rawCodec.id.value,
         name: rawCodec.name,
         capabilities: {
-          intraOnly: !!(rawCodec.capabilities & module.AV_CODEC_CAP_INTRA_ONLY),
-          lossless: !!(rawCodec.capabilities & module.AV_CODEC_CAP_LOSSLESS),
+          intraOnly: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_INTRA_ONLY),
+          lossless: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_LOSSLESS),
           experimental: !!(
-            rawCodec.capabilities & module.AV_CODEC_CAP_EXPERIMENTAL
+            rawCodec.capabilities & wasm.AV_CODEC_CAP_EXPERIMENTAL
           ),
-          hardware: !!(rawCodec.capabilities & module.AV_CODEC_CAP_HARDWARE),
-          hybrid: !!(rawCodec.capabilities & module.AV_CODEC_CAP_HYBRID),
+          hardware: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HARDWARE),
+          hybrid: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HYBRID),
         },
         longName: rawCodec.long_name,
         type: rawCodec.type.value,
@@ -118,9 +127,30 @@ class Worker {
     return codecs
   }
 
-  public listMuxers = async () => {}
+  public listMuxers = async () => {
+    const wasm = await this.wasm
+
+    const muxerVector = wasm.list_muxers()
+
+    const muxers: Muxer[] = []
+
+    for (let i = 0; i < muxerVector.size(); i++) {
+      const rawMuxer = muxerVector.get(i)
+
+      muxers.push({
+        name: rawMuxer.name,
+        longName: rawMuxer.long_name,
+        mimeType: rawMuxer.mime_type,
+        extensions: rawMuxer.extensions.split(','),
+        audioCodec: rawMuxer.audio_codec.value,
+        videoCodec: rawMuxer.video_codec.value,
+      })
+    }
+
+    return muxers
+  }
 }
 
-export type FFmpegWorkerAPI = typeof Worker
+export type WorkerAPI = FFmpeg
 
-expose(Worker, self as any)
+expose(FFmpeg, self as any)

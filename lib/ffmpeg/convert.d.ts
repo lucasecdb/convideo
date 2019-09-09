@@ -26,7 +26,7 @@ export interface Muxer {
   name: string
   long_name: string
   mime_type: string
-  extension: string
+  extensions: string
   video_codec: EnumValue
   audio_codec: EnumValue
 }
