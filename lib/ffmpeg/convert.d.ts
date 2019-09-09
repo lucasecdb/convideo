@@ -27,8 +27,8 @@ export interface Muxer {
   long_name: string
   mime_type: string
   extensions: string
-  video_codec: EnumValue
-  audio_codec: EnumValue
+  video_codec?: EnumValue
+  audio_codec?: EnumValue
 }
 
 export interface FFModule extends EmscriptenModule {

@@ -757,6 +757,7 @@ string get_avformat_extensions(const AVOutputFormat& format) {
 
 EMSCRIPTEN_BINDINGS(ffmpeg) {
   register_vector<AVCodec>("VectorAVCodec");
+  register_vector<AVOutputFormat>("VectorAVOutputFormat");
 
   enum_<AVMediaType>("AVMediaType")
     .value("AVMEDIA_TYPE_UNKNOWN", AVMEDIA_TYPE_UNKNOWN)

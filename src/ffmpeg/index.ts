@@ -17,8 +17,9 @@ const getAPI = (() => {
   return async () => {
     if (!worker) {
       worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
+      const FFmpeg = wrap<WorkerAPI>(worker)
       // @ts-ignore
-      workerAPI = new (wrap<WorkerAPI>(worker))()
+      workerAPI = new FFmpeg()
     }
 
     return workerAPI
@@ -41,15 +42,11 @@ export async function convert(
 export async function listCodecs() {
   const api = await getAPI()
 
-  console.log(api)
-
   return api.listCodecs()
 }
 
 export async function listMuxers() {
   const api = await getAPI()
-
-  console.log(api)
 
   return api.listMuxers()
 }

@@ -26,15 +26,15 @@ export interface Muxer {
   longName: string
   mimeType: string
   extensions: string[]
-  audioCodec: number
-  videoCodec: number
+  audioCodec?: number
+  videoCodec?: number
 }
 
 class FFmpeg {
   private _wasmModule: Promise<FFModule> | undefined
   private _asmModule: Promise<FFModule> | undefined
 
-  get wasm() {
+  private get wasm() {
     if (!this._wasmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
         import('../../../lib/ffmpeg/convert').then(
@@ -50,7 +50,7 @@ class FFmpeg {
     return this._wasmModule
   }
 
-  get asm() {
+  private get asm() {
     if (!this._asmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
         import('../../../lib/ffmpeg/asm/convert').then(
@@ -142,8 +142,8 @@ class FFmpeg {
         longName: rawMuxer.long_name,
         mimeType: rawMuxer.mime_type,
         extensions: rawMuxer.extensions.split(','),
-        audioCodec: rawMuxer.audio_codec.value,
-        videoCodec: rawMuxer.video_codec.value,
+        audioCodec: rawMuxer.audio_codec && rawMuxer.audio_codec.value,
+        videoCodec: rawMuxer.video_codec && rawMuxer.video_codec.value,
       })
     }
 
