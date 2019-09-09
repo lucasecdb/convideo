@@ -172,7 +172,6 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   --closure 1 \
   -s MODULARIZE=1 \
   -s INVOKE_RUN=0 \
-  -s ALLOW_MEMORY_GROWTH=1 \
   -s EXPORT_NAME=\"ffmpeg\" \
   --std=c++17 \
   -x c++ \
@@ -189,9 +188,16 @@ echo "=========================="
 (
   if [ $ASM ]; then
     mkdir -p asm
-    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -s WASM=0 -o asm/$PROGRAM_NAME.js
+    emcc \
+      $EMSCRIPTEN_COMMON_ARGS \
+      -s WASM=0 \
+      -s TOTAL_MEMORY=67108864 \
+      -o asm/$PROGRAM_NAME.js
   else
-    EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emcc $EMSCRIPTEN_COMMON_ARGS -o $PROGRAM_NAME.js
+    emcc \
+      $EMSCRIPTEN_COMMON_ARGS \
+      -s ALLOW_MEMORY_GROWTH=1 \
+      -o $PROGRAM_NAME.js
   fi
 )
 echo "=========================="
