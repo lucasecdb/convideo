@@ -1,6 +1,5 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
-#include <iostream>
 
 extern "C" {
 #include "libavcodec/avcodec.h"
