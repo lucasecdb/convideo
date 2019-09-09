@@ -102,10 +102,10 @@ class FFmpeg {
     return this._convert(asm, data, opts)
   }
 
-  public listCodecs = async () => {
+  public listEncoders = async () => {
     const wasm = await this.wasm
 
-    const codecsVector = wasm.list_codecs()
+    const codecsVector = wasm.list_encoders()
 
     const codecs: Codec[] = []
 

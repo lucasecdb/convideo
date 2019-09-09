@@ -39,10 +39,10 @@ export async function convert(
   return api.convert(data, opts)
 }
 
-export async function listCodecs() {
+export async function listEncoders() {
   const api = await getAPI()
 
-  return api.listCodecs()
+  return api.listEncoders()
 }
 
 export async function listMuxers() {

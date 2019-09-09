@@ -707,13 +707,17 @@ void free_result() {
   free(result);
 }
 
-std::vector<AVCodec> list_codecs() {
+std::vector<AVCodec> list_encoders() {
   std::vector<AVCodec> codec_list;
 
   void *i = 0;
   const AVCodec* codec;
 
   while ((codec = av_codec_iterate(&i)) != NULL) {
+    // skip decoder-only codecs
+    if (avcodec_find_encoder(codec->id) == NULL)
+      continue;
+
     codec_list.push_back(*codec);
   }
 
@@ -813,7 +817,7 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
 
   function("convert", &convert);
   function("free_result", &free_result);
-  function("list_codecs", &list_codecs);
+  function("list_encoders", &list_encoders);
   function("list_muxers", &list_muxers);
 
 #pragma region

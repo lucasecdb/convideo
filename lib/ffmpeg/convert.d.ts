@@ -34,7 +34,7 @@ export interface Muxer {
 export interface FFModule extends EmscriptenModule {
   free_result(): void
   convert(videoData: Uint8ClampedArray, opts: ConvertOptions): Uint8Array
-  list_codecs(): Vector<Codec>
+  list_encoders(): Vector<Codec>
   list_muxers(): Vector<Muxer>
   AV_CODEC_CAP_DRAW_HORIZ_BAND: number
   AV_CODEC_CAP_DR1: number
