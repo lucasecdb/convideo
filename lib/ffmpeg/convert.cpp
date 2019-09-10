@@ -686,7 +686,7 @@ val convert(string video, struct Options options) {
   fflush(infile);
   fclose(infile);
 
-  if (transcode("input", "output", options) > 0) {
+  if (transcode("input", "output", options) >= 0) {
     FILE *outfile = fopen("output", "rb");
 
     fseek(outfile, 0, SEEK_END);
