@@ -69,6 +69,8 @@ static int open_input_file(const char *filename)
 
     codec_ctx = avcodec_alloc_context3(dec);
 
+    codec_ctx->time_base = (AVRational){ 1, 10000 };
+
     if (!codec_ctx) {
       av_log(NULL, AV_LOG_ERROR, "Failed to allocate the decoder context for stream #%u\n", i);
       return AVERROR(ENOMEM);
@@ -106,12 +108,7 @@ static int open_output_file(string filename,
     string video_encoder_name,
     string audio_encoder_name)
 {
-  AVStream *out_stream;
-  AVStream *in_stream;
-  AVCodecContext *dec_ctx, *enc_ctx;
-  AVCodec *encoder;
   int ret;
-  unsigned int i;
   ofmt_ctx = NULL;
 
   avformat_alloc_output_context2(&ofmt_ctx, NULL, format_name.c_str(), filename.c_str());
@@ -121,16 +118,18 @@ static int open_output_file(string filename,
     return AVERROR_UNKNOWN;
   }
 
-  for (i = 0; i < ifmt_ctx->nb_streams; i++) {
-    out_stream = avformat_new_stream(ofmt_ctx, NULL);
+  for (unsigned int i = 0; i < ifmt_ctx->nb_streams; i++) {
+    AVStream *out_stream = avformat_new_stream(ofmt_ctx, NULL);
 
     if (!out_stream) {
       av_log(NULL, AV_LOG_ERROR, "Failed allocating output stream\n");
       return AVERROR_UNKNOWN;
     }
 
-    in_stream = ifmt_ctx->streams[i];
-    dec_ctx = stream_ctx[i].dec_ctx;
+    AVStream *in_stream = ifmt_ctx->streams[i];
+    AVCodecContext *dec_ctx = stream_ctx[i].dec_ctx;
+
+    out_stream->time_base = in_stream->time_base;
 
     int codec_type = dec_ctx->codec_type;
 
@@ -139,19 +138,22 @@ static int open_output_file(string filename,
         ? video_encoder_name.c_str()
         : audio_encoder_name.c_str();
 
-      encoder = avcodec_find_encoder_by_name(encoder_name);
+      AVCodec *encoder = avcodec_find_encoder_by_name(encoder_name);
 
       if (!encoder) {
         av_log(NULL, AV_LOG_FATAL, "Necessary encoder %s not found\n", encoder_name);
         return AVERROR_INVALIDDATA;
       }
 
-      enc_ctx = avcodec_alloc_context3(encoder);
+      AVCodecContext *enc_ctx = avcodec_alloc_context3(encoder);
 
       if (!enc_ctx) {
         av_log(NULL, AV_LOG_FATAL, "Failed to allocate the encoder context\n");
         return AVERROR(ENOMEM);
       }
+
+      enc_ctx->time_base = dec_ctx->time_base;
+
       /* In this example, we transcode to same properties (picture size,
        * sample rate etc.). These properties can be changed for output
        * streams easily using filters */
@@ -172,8 +174,6 @@ static int open_output_file(string filename,
         } else {
           enc_ctx->framerate = dec_ctx->framerate;
         }
-
-        enc_ctx->time_base = av_inv_q(enc_ctx->framerate);
       } else {
         enc_ctx->sample_rate = dec_ctx->sample_rate;
         enc_ctx->channel_layout = dec_ctx->channel_layout;
@@ -201,7 +201,6 @@ static int open_output_file(string filename,
         return ret;
       }
 
-      out_stream->time_base = enc_ctx->time_base;
       out_stream->r_frame_rate = in_stream->r_frame_rate;
 
       stream_ctx[i].enc_ctx = enc_ctx;
@@ -216,8 +215,6 @@ static int open_output_file(string filename,
         av_log(NULL, AV_LOG_ERROR, "Copying parameters for stream #%u failed\n", i);
         return ret;
       }
-
-      out_stream->time_base = in_stream->time_base;
     }
   }
 
@@ -613,7 +610,7 @@ int transcode(string input_filename, string output_filename, struct Options opti
       }
       av_packet_rescale_ts(&packet,
                  ifmt_ctx->streams[stream_index]->time_base,
-                 stream_ctx[stream_index].dec_ctx->time_base);
+                 stream_ctx[stream_index].enc_ctx->time_base);
 
       ret = decode(stream_ctx[stream_index].dec_ctx, frame, &packet, stream_index);
 
