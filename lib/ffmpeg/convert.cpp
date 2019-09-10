@@ -201,6 +201,8 @@ static int open_output_file(string filename,
         return ret;
       }
 
+      out_stream->r_frame_rate = in_stream->r_frame_rate;
+
       stream_ctx[i].enc_ctx = enc_ctx;
     } else if (dec_ctx->codec_type == AVMEDIA_TYPE_UNKNOWN) {
       av_log(NULL, AV_LOG_FATAL, "Elementary stream #%d is of unknown type, cannot proceed\n", i);
