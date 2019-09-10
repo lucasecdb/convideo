@@ -1,37 +1,52 @@
 import { wrap } from 'comlink'
 
-type FFmpegWorkerAPI = import('./worker').FFmpegWorkerAPI
+type WorkerAPI = import('./worker').WorkerAPI
 type ConvertOptions = import('./worker').ConvertOptions
-export type CodecDescription = import('./worker').CodecDescription
+
+export type Codec = import('./worker').Codec
+export type Muxer = import('./worker').Muxer
 
 interface Options extends ConvertOptions {
   asm?: boolean
 }
 
-let worker: Worker
-let workerAPI: FFmpegWorkerAPI
+const getAPI = (() => {
+  let worker: Worker
+  let workerAPI: Promise<WorkerAPI>
+
+  return async () => {
+    if (!worker) {
+      worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
+      const FFmpeg = wrap<WorkerAPI>(worker)
+      // @ts-ignore
+      workerAPI = new FFmpeg()
+    }
+
+    return workerAPI
+  }
+})()
 
 export async function convert(
   data: ArrayBuffer,
   { asm = false, ...opts }: Options
 ) {
-  if (!worker) {
-    worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
-    workerAPI = wrap<FFmpegWorkerAPI>(worker)
-  }
+  const api = await getAPI()
 
   if (asm) {
-    return workerAPI.convertAsm(data, opts)
+    return api.convertAsm(data, opts)
   }
 
-  return workerAPI.convert(data, opts)
+  return api.convert(data, opts)
 }
 
-export async function listCodecs() {
-  if (!worker) {
-    worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
-    workerAPI = wrap<FFmpegWorkerAPI>(worker)
-  }
+export async function listEncoders() {
+  const api = await getAPI()
 
-  return workerAPI.listCodecs()
+  return api.listEncoders()
+}
+
+export async function listMuxers() {
+  const api = await getAPI()
+
+  return api.listMuxers()
 }

@@ -1,4 +1,4 @@
-type ModuleFactory<M extends EmscriptenModule> = (
+export type ModuleFactory<M extends EmscriptenModule> = (
   opts: Partial<EmscriptenModule>
 ) => M
 

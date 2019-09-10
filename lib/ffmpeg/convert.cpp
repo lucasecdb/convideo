@@ -135,13 +135,14 @@ static int open_output_file(string filename,
     int codec_type = dec_ctx->codec_type;
 
     if (codec_type == AVMEDIA_TYPE_VIDEO || codec_type == AVMEDIA_TYPE_AUDIO) {
-      encoder = avcodec_find_encoder_by_name(codec_type == AVMEDIA_TYPE_VIDEO
-          ? video_encoder_name.c_str()
-          : audio_encoder_name.c_str()
-      );
+      const char* encoder_name = codec_type == AVMEDIA_TYPE_VIDEO
+        ? video_encoder_name.c_str()
+        : audio_encoder_name.c_str();
+
+      encoder = avcodec_find_encoder_by_name(encoder_name);
 
       if (!encoder) {
-        av_log(NULL, AV_LOG_FATAL, "Necessary encoder not found\n");
+        av_log(NULL, AV_LOG_FATAL, "Necessary encoder %s not found\n", encoder_name);
         return AVERROR_INVALIDDATA;
       }
 
@@ -440,7 +441,7 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index) {
 
   /* send the frame to the encoder */
   if (filt_frame)
-    av_log(NULL, AV_LOG_VERBOSE, "Send frame %3" PRId64 "\n", filt_frame->pts);
+    av_log(NULL, AV_LOG_VERBOSE, "Send frame %3" PRId64 "for encoding\n", filt_frame->pts);
 
   ret = avcodec_send_frame(enc_ctx, filt_frame);
 
@@ -542,7 +543,11 @@ static int decode(AVCodecContext *dec_ctx,
   char buf[1024];
   int ret;
 
+  if (pkt)
+    av_log(NULL, AV_LOG_DEBUG, "Send packet %3" PRId64 " for decoding\n", pkt->pts);
+
   ret = avcodec_send_packet(dec_ctx, pkt);
+
   if (ret < 0) {
     av_log(NULL, AV_LOG_ERROR, "Error sending a packet for decoding\n");
     return ret;
@@ -681,63 +686,84 @@ val convert(string video, struct Options options) {
   fflush(infile);
   fclose(infile);
 
-  transcode("input", "output", options);
+  if (transcode("input", "output", options) > 0) {
+    FILE *outfile = fopen("output", "rb");
 
-  FILE *outfile = fopen("output", "rb");
+    fseek(outfile, 0, SEEK_END);
+    long fsize = ftell(outfile);
 
-  fseek(outfile, 0, SEEK_END);
-  long fsize = ftell(outfile);
+    result = (uint8_t*) malloc(fsize);
 
-  result = (uint8_t*) malloc(fsize);
+    fseek(outfile, 0, SEEK_SET);
+    fread(result, fsize, 1, outfile);
 
-  fseek(outfile, 0, SEEK_SET);
-  fread(result, fsize, 1, outfile);
+    return val(typed_memory_view(fsize, result));
+  }
 
-  return val(typed_memory_view(fsize, result));
+  return val(NULL);
 }
 
 void free_result() {
   free(result);
 }
 
-std::vector<AVCodecDescriptor> list_codecs() {
-  std::vector<AVCodecDescriptor> desc_list;
+std::vector<AVCodec> list_encoders() {
+  std::vector<AVCodec> codec_list;
 
-  const AVCodecDescriptor* curr_desc = NULL;
+  void *i = 0;
+  const AVCodec* codec;
 
-  while ((curr_desc = avcodec_descriptor_next(curr_desc)) != NULL) {
-    desc_list.push_back(*curr_desc);
+  while ((codec = av_codec_iterate(&i)) != NULL) {
+    // skip decoder-only codecs
+    if (avcodec_find_encoder(codec->id) == NULL)
+      continue;
+
+    codec_list.push_back(*codec);
   }
 
-  return desc_list;
+  return codec_list;
 }
 
-string get_avcodec_name(const AVCodecDescriptor& c) {
+string get_avcodec_name(const AVCodec& c) {
   return c.name;
 }
 
-string get_avcodec_long_name(const AVCodecDescriptor& c) {
+string get_avcodec_long_name(const AVCodec& c) {
   return c.long_name;
 }
 
-std::vector<string> get_avcodec_mime_types(const AVCodecDescriptor& c) {
-  std::vector<string> types;
+std::vector<AVOutputFormat> list_muxers() {
+  std::vector<AVOutputFormat> muxer_list;
 
-  if (!c.mime_types) {
-    return types;
+  void *i = 0;
+  const AVOutputFormat* format;
+
+  while ((format = av_muxer_iterate(&i)) != NULL) {
+    muxer_list.push_back(*format);
   }
 
-  for (auto mime_type = c.mime_types; *mime_type != NULL; mime_type++) {
-    types.push_back(string(*mime_type));
-  }
+  return muxer_list;
+}
 
-  return types;
+string get_avformat_name(const AVOutputFormat& format) {
+  return format.name;
+}
+
+string get_avformat_long_name(const AVOutputFormat& format) {
+  return format.long_name;
+}
+
+string get_avformat_mime_type(const AVOutputFormat& format) {
+  return format.mime_type;
+}
+
+string get_avformat_extensions(const AVOutputFormat& format) {
+  return format.extensions;
 }
 
 EMSCRIPTEN_BINDINGS(ffmpeg) {
-  register_vector<AVCodecDescriptor>("VectorCodecDescriptor");
-
-  register_vector<string>("VectorString");
+  register_vector<AVCodec>("VectorAVCodec");
+  register_vector<AVOutputFormat>("VectorAVOutputFormat");
 
   enum_<AVMediaType>("AVMediaType")
     .value("AVMEDIA_TYPE_UNKNOWN", AVMEDIA_TYPE_UNKNOWN)
@@ -748,13 +774,20 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .value("AVMEDIA_TYPE_ATTACHMENT", AVMEDIA_TYPE_ATTACHMENT)
     .value("AVMEDIA_TYPE_NB", AVMEDIA_TYPE_NB);
 
-  class_<AVCodecDescriptor>("AVCodecDescriptor")
-    .property("id", &AVCodecDescriptor::id)
-    .property("type", &AVCodecDescriptor::type)
+  class_<AVCodec>("AVCodec")
+    .property("id", &AVCodec::id)
+    .property("type", &AVCodec::type)
     .property("name", &get_avcodec_name)
     .property("long_name", &get_avcodec_long_name)
-    .property("props", &AVCodecDescriptor::props)
-    .property("mime_types", &get_avcodec_mime_types);
+    .property("capabilities", &AVCodec::capabilities);
+
+  class_<AVOutputFormat>("AVOutputFormat")
+    .property("name", &get_avformat_name)
+    .property("long_name", &get_avformat_long_name)
+    .property("mime_type", &get_avformat_mime_type)
+    .property("extensions", &get_avformat_extensions)
+    .property("audio_codec", &AVOutputFormat::audio_codec)
+    .property("video_codec", &AVOutputFormat::video_codec);
 
   value_object<Options>("Options")
     .field("verbose", &Options::verbose)
@@ -762,16 +795,30 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .field("videoEncoder", &Options::videoEncoder)
     .field("audioEncoder", &Options::audioEncoder);
 
-  constant("AV_CODEC_PROP_INTRA_ONLY", AV_CODEC_PROP_INTRA_ONLY);
-  constant("AV_CODEC_PROP_LOSSY", AV_CODEC_PROP_LOSSY);
-  constant("AV_CODEC_PROP_LOSSLESS", AV_CODEC_PROP_LOSSLESS);
-  constant("AV_CODEC_PROP_REORDER", AV_CODEC_PROP_REORDER);
-  constant("AV_CODEC_PROP_BITMAP_SUB", AV_CODEC_PROP_BITMAP_SUB);
-  constant("AV_CODEC_PROP_TEXT_SUB", AV_CODEC_PROP_TEXT_SUB);
+  constant("AV_CODEC_CAP_DRAW_HORIZ_BAND", AV_CODEC_CAP_DRAW_HORIZ_BAND);
+  constant("AV_CODEC_CAP_DR1", AV_CODEC_CAP_DR1);
+  constant("AV_CODEC_CAP_TRUNCATED", AV_CODEC_CAP_TRUNCATED);
+  constant("AV_CODEC_CAP_DELAY", AV_CODEC_CAP_DELAY);
+  constant("AV_CODEC_CAP_SMALL_LAST_FRAME", AV_CODEC_CAP_SMALL_LAST_FRAME);
+  constant("AV_CODEC_CAP_SUBFRAMES", AV_CODEC_CAP_SUBFRAMES);
+  constant("AV_CODEC_CAP_EXPERIMENTAL", AV_CODEC_CAP_EXPERIMENTAL);
+  constant("AV_CODEC_CAP_CHANNEL_CONF", AV_CODEC_CAP_CHANNEL_CONF);
+  constant("AV_CODEC_CAP_FRAME_THREADS", AV_CODEC_CAP_FRAME_THREADS);
+  constant("AV_CODEC_CAP_SLICE_THREADS", AV_CODEC_CAP_SLICE_THREADS);
+  constant("AV_CODEC_CAP_PARAM_CHANGE", AV_CODEC_CAP_PARAM_CHANGE);
+  constant("AV_CODEC_CAP_AUTO_THREADS", AV_CODEC_CAP_AUTO_THREADS);
+  constant("AV_CODEC_CAP_VARIABLE_FRAME_SIZE", AV_CODEC_CAP_VARIABLE_FRAME_SIZE);
+  constant("AV_CODEC_CAP_AVOID_PROBING", AV_CODEC_CAP_AVOID_PROBING);
+  constant("AV_CODEC_CAP_INTRA_ONLY", AV_CODEC_CAP_INTRA_ONLY);
+  constant("AV_CODEC_CAP_LOSSLESS", AV_CODEC_CAP_LOSSLESS);
+  constant("AV_CODEC_CAP_HARDWARE", AV_CODEC_CAP_HARDWARE);
+  constant("AV_CODEC_CAP_HYBRID", AV_CODEC_CAP_HYBRID);
+  constant("AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE", AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE);
 
   function("convert", &convert);
   function("free_result", &free_result);
-  function("list_codecs", &list_codecs);
+  function("list_encoders", &list_encoders);
+  function("list_muxers", &list_muxers);
 
 #pragma region
   enum_<AVCodecID>("AVCodecID")

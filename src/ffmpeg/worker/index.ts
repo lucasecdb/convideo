@@ -2,121 +2,174 @@ import { expose } from 'comlink'
 
 import wasmUrl from '../../../lib/ffmpeg/convert.wasm'
 import memUrl from '../../../lib/ffmpeg/asm/convert.js.mem'
-import { initEmscriptenModule } from '../util'
+import { initEmscriptenModule, ModuleFactory } from '../util'
 
 type FFModule = import('../../../lib/ffmpeg/convert').FFModule
 export type ConvertOptions = import('../../../lib/ffmpeg/convert').ConvertOptions
 
-export interface CodecDescription {
+export interface Codec {
   id: number
   name: string
   longName: string
-  props: {
+  capabilities: {
+    drawHorizBand: boolean
+    dr1: boolean
+    truncated: boolean
+    delay: boolean
+    subFrames: boolean
+    experimental: boolean
     intraOnly: boolean
-    lossy: boolean
     lossless: boolean
-    bitmapSub: boolean
-    textSub: boolean
+    hardware: boolean
+    hybrid: boolean
   }
   type: number
-  mimeTypes: string[]
 }
 
-let ffmpegModule: Promise<FFModule>
-let asmFFmpegModule: Promise<FFModule>
-
-const _convert = async (
-  module: FFModule,
-  data: ArrayBuffer,
-  opts: ConvertOptions
-) => {
-  try {
-    const resultView = module.convert(new Uint8ClampedArray(data), opts)
-    const result = new Uint8ClampedArray(resultView)
-
-    return result.buffer as ArrayBuffer
-  } finally {
-    module.free_result()
-  }
+export interface Muxer {
+  name: string
+  longName: string
+  mimeType: string
+  extensions: string[]
+  audioCodec?: number
+  videoCodec?: number
 }
 
-const convert = async (data: ArrayBuffer, opts: ConvertOptions) => {
-  if (!ffmpegModule) {
-    const ffmpeg = (await import('../../../lib/ffmpeg/convert')).default
-    // eslint-disable-next-line require-atomic-updates
-    ffmpegModule = initEmscriptenModule(ffmpeg, { wasmUrl })
-  }
+class FFmpeg {
+  private _wasmModule: Promise<FFModule> | undefined
+  private _asmModule: Promise<FFModule> | undefined
 
-  const module = await ffmpegModule
+  private get wasm() {
+    if (!this._wasmModule) {
+      return new Promise<ModuleFactory<FFModule>>(resolve => {
+        import('../../../lib/ffmpeg/convert').then(
+          ({ default: defaultValue }) => resolve(defaultValue)
+        )
+      }).then(instance => {
+        this._wasmModule = initEmscriptenModule(instance, { wasmUrl })
 
-  return _convert(module, data, opts)
-}
-
-const convertAsm = async (data: ArrayBuffer, opts: ConvertOptions) => {
-  if (!asmFFmpegModule) {
-    const ffmpegAsm = (await import('../../../lib/ffmpeg/asm/convert')).default
-    // eslint-disable-next-line require-atomic-updates
-    asmFFmpegModule = initEmscriptenModule(ffmpegAsm, { memUrl })
-  }
-
-  const module = await asmFFmpegModule
-
-  return _convert(module, data, opts)
-}
-
-const listCodecs = async () => {
-  if (!ffmpegModule) {
-    const ffmpeg = (await import('../../../lib/ffmpeg/convert')).default
-    // eslint-disable-next-line require-atomic-updates
-    ffmpegModule = initEmscriptenModule(ffmpeg, { wasmUrl })
-  }
-
-  const module = await ffmpegModule
-
-  const codecsVector = module.list_codecs()
-
-  const codecs: CodecDescription[] = []
-
-  for (let i = 0; i < codecsVector.size(); i++) {
-    const rawCodec = codecsVector.get(i)
-
-    if (!rawCodec.id) {
-      continue
+        return this._wasmModule
+      })
     }
 
-    const mimeTypes: string[] = []
-
-    for (let j = 0; j < rawCodec.mime_types.size(); j++) {
-      const mimeType = rawCodec.mime_types.get(i)
-
-      mimeTypes.push(mimeType)
-    }
-
-    codecs.push({
-      id: rawCodec.id.value,
-      name: rawCodec.name,
-      props: {
-        intraOnly: !!(rawCodec.props & module.AV_CODEC_PROP_INTRA_ONLY),
-        lossy: !!(rawCodec.props & module.AV_CODEC_PROP_LOSSY),
-        lossless: !!(rawCodec.props & module.AV_CODEC_PROP_LOSSLESS),
-        bitmapSub: !!(rawCodec.props & module.AV_CODEC_PROP_BITMAP_SUB),
-        textSub: !!(rawCodec.props & module.AV_CODEC_PROP_TEXT_SUB),
-      },
-      longName: rawCodec.long_name,
-      type: rawCodec.type.value,
-      mimeTypes,
-    })
+    return this._wasmModule
   }
 
-  return codecs
+  private get asm() {
+    if (!this._asmModule) {
+      return new Promise<ModuleFactory<FFModule>>(resolve => {
+        import('../../../lib/ffmpeg/asm/convert').then(
+          ({ default: defaultValue }) => resolve(defaultValue)
+        )
+      }).then(instance => {
+        this._asmModule = initEmscriptenModule(instance, { memUrl })
+
+        return this._asmModule
+      })
+    }
+
+    return this._asmModule
+  }
+
+  private _convert = async (
+    instance: FFModule,
+    data: ArrayBuffer,
+    opts: ConvertOptions
+  ) => {
+    try {
+      const resultView = instance.convert(new Uint8ClampedArray(data), opts)
+      const result = new Uint8ClampedArray(resultView)
+
+      instance.free_result()
+
+      return result.buffer as ArrayBuffer
+    } catch (_) {
+      instance.free_result()
+
+      return null
+    }
+  }
+
+  public convert = async (data: ArrayBuffer, opts: ConvertOptions) => {
+    const wasm = await this.wasm
+
+    return this._convert(wasm, data, opts)
+  }
+
+  public convertAsm = async (data: ArrayBuffer, opts: ConvertOptions) => {
+    const asm = await this.asm
+
+    return this._convert(asm, data, opts)
+  }
+
+  public listEncoders = async () => {
+    const wasm = await this.wasm
+
+    const codecsVector = wasm.list_encoders()
+
+    const codecs: Codec[] = []
+
+    for (let i = 0; i < codecsVector.size(); i++) {
+      const rawCodec = codecsVector.get(i)
+
+      if (
+        !rawCodec.id ||
+        codecs.findIndex(codec => codec.id === rawCodec.id.value) > -1
+      ) {
+        continue
+      }
+
+      codecs.push({
+        id: rawCodec.id.value,
+        name: rawCodec.name,
+        capabilities: {
+          drawHorizBand: !!(
+            rawCodec.capabilities & wasm.AV_CODEC_CAP_DRAW_HORIZ_BAND
+          ),
+          dr1: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_DR1),
+          truncated: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_TRUNCATED),
+          delay: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_DELAY),
+          subFrames: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_SUBFRAMES),
+          experimental: !!(
+            rawCodec.capabilities & wasm.AV_CODEC_CAP_EXPERIMENTAL
+          ),
+          intraOnly: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_INTRA_ONLY),
+          lossless: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_LOSSLESS),
+          hardware: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HARDWARE),
+          hybrid: !!(rawCodec.capabilities & wasm.AV_CODEC_CAP_HYBRID),
+        },
+        longName: rawCodec.long_name,
+        type: rawCodec.type.value,
+      })
+    }
+
+    return codecs
+  }
+
+  public listMuxers = async () => {
+    const wasm = await this.wasm
+
+    const muxerVector = wasm.list_muxers()
+
+    const muxers: Muxer[] = []
+
+    for (let i = 0; i < muxerVector.size(); i++) {
+      const rawMuxer = muxerVector.get(i)
+
+      muxers.push({
+        name: rawMuxer.name,
+        longName: rawMuxer.long_name,
+        mimeType: rawMuxer.mime_type,
+        extensions: rawMuxer.extensions.split(','),
+        audioCodec: rawMuxer.audio_codec && rawMuxer.audio_codec.value,
+        videoCodec: rawMuxer.video_codec && rawMuxer.video_codec.value,
+      })
+    }
+
+    return muxers
+  }
 }
 
-const exports = {
-  convert,
-  convertAsm,
-  listCodecs,
-}
+export type WorkerAPI = FFmpeg
 
-export type FFmpegWorkerAPI = typeof exports
-
-expose(exports, self as any)
+expose(FFmpeg, self as any)
