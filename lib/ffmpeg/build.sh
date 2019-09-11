@@ -168,7 +168,6 @@ echo "Compiling ffmpeg done"
 echo "=========================="
 
 EMSCRIPTEN_COMMON_ARGS="--bind \
-  ${OPTIMIZE} \
   --closure 1 \
   -s MODULARIZE=1 \
   -s INVOKE_RUN=0 \
@@ -189,12 +188,15 @@ echo "=========================="
   if [ $ASM ]; then
     mkdir -p asm
     emcc \
+      -O3 \
       $EMSCRIPTEN_COMMON_ARGS \
       -s WASM=0 \
-      -s TOTAL_MEMORY=67108864 \
+      -s ALLOW_MEMORY_GROWTH=1 \
+      -s USE_CLOSURE_COMPILER=1 \
       -o asm/$PROGRAM_NAME.js
   else
     emcc \
+      $OPTIMIZE \
       $EMSCRIPTEN_COMMON_ARGS \
       -s ALLOW_MEMORY_GROWTH=1 \
       -o $PROGRAM_NAME.js

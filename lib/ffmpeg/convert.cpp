@@ -201,7 +201,7 @@ static int open_output_file(string filename,
         } else {
           enc_ctx->framerate = dec_ctx->framerate;
         }
-        
+
         if (stream_ctx[i].rotate_overridden) {
           int rotate_value = stream_ctx[i].rotate_value;
 
@@ -280,7 +280,6 @@ static int open_output_file(string filename,
 static int init_filter(FilteringContext* fctx, AVCodecContext *dec_ctx,
     AVCodecContext *enc_ctx, const char *filter_spec)
 {
-  char args[512];
   int ret = 0;
   const AVFilter *buffersrc = NULL;
   const AVFilter *buffersink = NULL;
@@ -296,6 +295,7 @@ static int init_filter(FilteringContext* fctx, AVCodecContext *dec_ctx,
   }
 
   if (dec_ctx->codec_type == AVMEDIA_TYPE_VIDEO) {
+    char args[512];
     buffersrc = avfilter_get_by_name("buffer");
     buffersink = avfilter_get_by_name("buffersink");
 
@@ -337,6 +337,7 @@ static int init_filter(FilteringContext* fctx, AVCodecContext *dec_ctx,
       goto end;
     }
   } else if (dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+    char args[512];
     buffersrc = avfilter_get_by_name("abuffer");
     buffersink = avfilter_get_by_name("abuffersink");
 
@@ -438,7 +439,6 @@ end:
 
 static int init_filters(void)
 {
-  const char *filter_spec;
   int ret;
 
   filter_ctx = (FilteringContext*)av_malloc_array(ifmt_ctx->nb_streams, sizeof(*filter_ctx));
@@ -449,9 +449,13 @@ static int init_filters(void)
     filter_ctx[i].buffersrc_ctx  = NULL;
     filter_ctx[i].buffersink_ctx = NULL;
     filter_ctx[i].filter_graph   = NULL;
-    if (!(ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO
-        || ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO))
+
+    if (!(ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO ||
+        ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO))
       continue;
+
+    const char *filter_spec;
+
     if (ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
       if (stream_ctx[i].rotate_overridden) {
         int rotate_value = stream_ctx[i].rotate_value;
@@ -461,19 +465,11 @@ static int init_filters(void)
         } else if (rotate_value % 180 == 0) {
           filter_spec = "vflip";
         } else {
-          char args[512];
-
-          string dir;
-
           if (rotate_value % 270 == 0) {
-            dir = "cclock";
+            filter_spec = "transpose=cclock";
           } else {
-            dir = "clock";
+            filter_spec = "transpose=clock";
           }
-
-          sprintf(args, "transpose=%s", dir.c_str());
-
-          filter_spec = args;
         }
       } else {
         filter_spec = "null"; // passthrough (dummy) filter for video
@@ -484,6 +480,7 @@ static int init_filters(void)
 
     ret = init_filter(&filter_ctx[i], stream_ctx[i].dec_ctx,
         stream_ctx[i].enc_ctx, filter_spec);
+
     if (ret)
       return ret;
   }
@@ -616,7 +613,7 @@ static int decode(AVCodecContext *dec_ctx,
 
     if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
       ret = 0;
-      break; 
+      break;
     } else if (ret < 0) {
       av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
       return ret;
