@@ -8,6 +8,7 @@ extern "C" {
 #include "libavfilter/buffersrc.h"
 #include "libavutil/opt.h"
 #include "libavutil/pixdesc.h"
+#include "libavutil/display.h"
 #include "libavutil/eval.h"
 }
 
@@ -199,6 +200,17 @@ static int open_output_file(string filename,
           enc_ctx->framerate = encoder->supported_framerates[0];
         } else {
           enc_ctx->framerate = dec_ctx->framerate;
+        }
+        
+        if (stream_ctx[i].rotate_overridden) {
+          int rotate_value = stream_ctx[i].rotate_value;
+
+          uint8_t *sd = av_stream_new_side_data(out_stream,
+              AV_PKT_DATA_DISPLAYMATRIX,
+              sizeof(int32_t) * 9);
+
+          if (sd)
+            av_display_rotation_set((int32_t *)sd, rotate_value);
         }
       } else {
         enc_ctx->sample_rate = dec_ctx->sample_rate;
@@ -444,12 +456,11 @@ static int init_filters(void)
       if (stream_ctx[i].rotate_overridden) {
         char args[512];
 
-        snprintf(args, sizeof(args), "rotate=%d", stream_ctx[i].rotate_value);
+        snprintf(args, sizeof(args), "rotate=%d*PI/180", stream_ctx[i].rotate_value);
 
         filter_spec = args;
-      } else {
+      } else
         filter_spec = "null"; // passthrough (dummy) filter for video
-      }
     } else {
       filter_spec = "anull"; // passthrough (dummy) filter for audio
     }
