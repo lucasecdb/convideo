@@ -454,13 +454,30 @@ static int init_filters(void)
       continue;
     if (ifmt_ctx->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
       if (stream_ctx[i].rotate_overridden) {
-        char args[512];
+        int rotate_value = stream_ctx[i].rotate_value;
 
-        snprintf(args, sizeof(args), "rotate=%d*PI/180", stream_ctx[i].rotate_value);
+        if (rotate_value % 360 == 0) {
+          filter_spec = "null"; // no rotation required
+        } else if (rotate_value % 180 == 0) {
+          filter_spec = "vflip";
+        } else {
+          char args[512];
 
-        filter_spec = args;
-      } else
+          string dir;
+
+          if (rotate_value % 270 == 0) {
+            dir = "cclock";
+          } else {
+            dir = "clock";
+          }
+
+          sprintf(args, "transpose=%s", dir.c_str());
+
+          filter_spec = args;
+        }
+      } else {
         filter_spec = "null"; // passthrough (dummy) filter for video
+      }
     } else {
       filter_spec = "anull"; // passthrough (dummy) filter for audio
     }
