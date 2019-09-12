@@ -14,7 +14,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const safePostCssParser = require('postcss-safe-parser')
 const ManifestPlugin = require('webpack-manifest-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
+const { InjectManifest } = require('workbox-webpack-plugin')
 const WatchMissingNodeModulesPlugin = require('react-dev-utils/WatchMissingNodeModulesPlugin')
 const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent')
 const paths = require('./paths')
@@ -70,6 +70,8 @@ module.exports = function(webpackEnv) {
     : isEnvDevelopment && ''
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(publicUrl)
+
+  const workerEnv = getClientEnvironment(publicUrl, true)
 
   // common function to get style loaders
   const getStyleLoaders = (cssOptions, preProcessor) => {
@@ -415,17 +417,14 @@ module.exports = function(webpackEnv) {
           }
         },
       }),
-      isEnvProduction &&
-        new WorkboxWebpackPlugin.GenerateSW({
-          clientsClaim: true,
-          exclude: [/\.map$/, /asset-manifest\.json$/],
-          importWorkboxFrom: 'cdn',
-          navigateFallback: publicUrl + '/index.html',
-          navigateFallbackBlacklist: [
-            new RegExp('^/_'),
-            new RegExp('/[^/?]+\\.[^/]+$'),
-          ],
-        }),
+      new InjectManifest({
+        swSrc: paths.appServiceWorker,
+        swDest: 'service-worker.js',
+        webpackCompilationPlugins: [
+          new webpack.DefinePlugin(workerEnv.stringified),
+        ],
+        maximumFileSizeToCacheInBytes: 15 * 1024 * 1024,
+      }),
       new ForkTsCheckerWebpackPlugin({
         typescript: resolve.sync('typescript', {
           basedir: paths.appNodeModules,

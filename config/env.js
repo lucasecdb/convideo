@@ -60,7 +60,7 @@ process.env.NODE_PATH = (process.env.NODE_PATH || '')
 // injected into the application via DefinePlugin in Webpack configuration.
 const REACT_APP = /^REACT_APP_/i
 
-function getClientEnvironment(publicUrl) {
+function getClientEnvironment(publicUrl, worker = false) {
   const raw = Object.keys(process.env)
     .filter(key => REACT_APP.test(key))
     .reduce(
@@ -85,6 +85,8 @@ function getClientEnvironment(publicUrl) {
       env[key] = JSON.stringify(raw[key])
       return env
     }, {}),
+    // Allow browser-only and server-only code to be eliminated
+    'typeof window': JSON.stringify(worker ? 'undefined' : 'object'),
   }
 
   return { raw, stringified }

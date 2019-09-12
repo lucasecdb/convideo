@@ -21,6 +21,7 @@
     "@material/line-ripple": "^3.1.0",
     "@material/notched-outline": "^3.1.0",
     "@material/ripple": "^3.1.0",
+    "@material/snackbar": "^3.1.0",
     "@material/theme": "^3.1.0",
     "@material/typography": "^3.1.0",
     "classnames": "^2.2.6",
@@ -40,6 +41,7 @@
     "@types/node": "12.7.2",
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
+    "@types/uuid": "^3.4.5",
     "babel-eslint": "10.0.2",
     "babel-jest": "^24.8.0",
     "babel-loader": "8.0.6",
@@ -85,7 +87,7 @@
     "webpack": "4.39.1",
     "webpack-dev-server": "3.2.1",
     "webpack-manifest-plugin": "2.0.4",
-    "workbox-webpack-plugin": "4.3.1",
+    "workbox-webpack-plugin": "^5.0.0-beta.0",
     "worker-plugin": "^3.2.0"
   },
   "browserslist": {

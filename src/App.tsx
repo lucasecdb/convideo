@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import Dialog, {
   DialogTitle,
@@ -8,6 +8,9 @@ import Dialog, {
 import Button from './components/Button'
 import FileUploader from './FileUploader'
 import VideoConverter from './VideoConverter'
+import NotificationToasts from './NotificationToasts'
+import registerSW from './registerSW'
+import { notificationState } from './notification/index'
 
 import './App.css'
 
@@ -17,6 +20,38 @@ const App: React.FC = () => {
   const [file, setFile] = useState<File | null>(null)
   const [showFileSizeError, setShowFileSizeError] = useState(false)
 
+  useEffect(() => {
+    let updateNotificationId: string | null = null
+    let installNotificationId: string | null = null
+
+    registerSW({
+      onUpdate: () => {
+        updateNotificationId = notificationState.addNotification({
+          message: 'A new update is available!',
+          actionText: 'Refresh',
+          onAction: () => {
+            window.location.reload()
+          },
+        })
+      },
+      onInstall: () => {
+        installNotificationId = notificationState.addNotification({
+          message: 'Ready to work offline',
+          actionText: 'Dismiss',
+        })
+      },
+    })
+
+    return () => {
+      if (updateNotificationId) {
+        notificationState.removeNotification(updateNotificationId)
+      }
+
+      if (installNotificationId) {
+        notificationState.removeNotification(installNotificationId)
+      }
+    }
+  }, [])
   const handleFile = async (inputFile: File) => {
     if (inputFile.size > FILE_SIZE_LIMIT) {
       setShowFileSizeError(true)
@@ -29,24 +64,29 @@ const App: React.FC = () => {
     setShowFileSizeError(false)
   }
 
-  return file ? (
-    <VideoConverter video={file} onClose={() => setFile(null)} />
-  ) : (
+  return (
     <>
-      <FileUploader onFile={handleFile} />
-      <Dialog
-        open={showFileSizeError}
-        onClose={handleDialogClose}
-        role="alertdialog"
-      >
-        <DialogTitle>File too large</DialogTitle>
-        <DialogContent>
-          The size of the uploaded file exceeds our limit (200 Mb)
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
+      {file ? (
+        <VideoConverter video={file} onClose={() => setFile(null)} />
+      ) : (
+        <>
+          <FileUploader onFile={handleFile} />
+          <Dialog
+            open={showFileSizeError}
+            onClose={handleDialogClose}
+            role="alertdialog"
+          >
+            <DialogTitle>File too large</DialogTitle>
+            <DialogContent>
+              The size of the uploaded file exceeds our limit (200 Mb)
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleDialogClose}>Close</Button>
+            </DialogActions>
+          </Dialog>
+        </>
+      )}
+      <NotificationToasts />
     </>
   )
 }
