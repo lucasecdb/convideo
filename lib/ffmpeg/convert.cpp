@@ -40,8 +40,7 @@ struct Options {
   string audioEncoder;
 };
 
-static int open_input_file(const char *filename)
-{
+static int open_input_file(const char *filename) {
   int ret;
   ifmt_ctx = NULL;
 
@@ -437,8 +436,7 @@ end:
   return ret;
 }
 
-static int init_filters(void)
-{
+static int init_filters(void) {
   int ret;
 
   filter_ctx = (FilteringContext*)av_malloc_array(ifmt_ctx->nb_streams, sizeof(*filter_ctx));
@@ -535,8 +533,7 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index) {
   return ret;
 }
 
-static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
-{
+static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index) {
   int ret;
   AVFrame *filt_frame;
 
@@ -575,14 +572,15 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index)
     }
 
     filt_frame->pict_type = AV_PICTURE_TYPE_NONE;
+    filt_frame->pts = frame->pts;
+
     ret = encode_write_frame(filt_frame, stream_index);
   }
 
   return ret;
 }
 
-static int flush_encoder(unsigned int stream_index)
-{
+static int flush_encoder(unsigned int stream_index) {
   if (!(stream_ctx[stream_index].enc_ctx->codec->capabilities &
         AV_CODEC_CAP_DELAY))
     return 0;
@@ -626,8 +624,7 @@ static int decode(AVCodecContext *dec_ctx,
   return ret;
 }
 
-int transcode(string input_filename, string output_filename, struct Options options)
-{
+int transcode(string input_filename, string output_filename, struct Options options) {
   int ret;
   AVPacket packet = { .data = NULL, .size = 0 };
   AVFrame *frame = NULL;
