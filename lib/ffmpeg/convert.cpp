@@ -40,7 +40,7 @@ struct Options {
   string audioEncoder;
 };
 
-static int open_input_file(const char *filename) {
+static int init_input(const char *filename) {
   int ret;
   ifmt_ctx = NULL;
 
@@ -125,7 +125,7 @@ static int open_input_file(const char *filename) {
   return 0;
 }
 
-static int open_output_file(string filename,
+static int init_output(string filename,
     string format_name,
     string video_encoder_name,
     string audio_encoder_name)
@@ -641,9 +641,9 @@ int transcode(string input_filename, string output_filename, struct Options opti
     av_log_set_level(AV_LOG_INFO);
   }
 
-  if ((ret = open_input_file(input_filename.c_str())) < 0)
+  if ((ret = init_input(input_filename.c_str())) < 0)
     goto end;
-  if ((ret = open_output_file(
+  if ((ret = init_output(
           output_filename,
           options.outputFormat,
           options.videoEncoder,
