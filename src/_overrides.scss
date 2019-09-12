@@ -1,0 +1,6 @@
+@import "@material/snackbar/mixins";
+
+.mdc-snackbar { 
+  @include mdc-snackbar-fill-color(#373737);
+  @include mdc-snackbar-label-ink-color($mdc-theme-on-surface);
+}

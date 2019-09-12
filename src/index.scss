@@ -19,6 +19,8 @@ $breakpoint-large: 'screen and (min-width: 900px)' !default;
 
 @import "@material/theme/mixins";
 
+@import "./_overrides.scss";
+
 * {
   margin: 0;
   padding: 0;
