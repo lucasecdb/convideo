@@ -515,14 +515,14 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index) {
       return ret;
     }
 
-    av_log(NULL, AV_LOG_VERBOSE, "Write packet %3" PRId64 " (size=%5d)\n", enc_pkt.pts, enc_pkt.size);
-
     // prepare packet for muxing
     enc_pkt.stream_index = stream_index;
     av_packet_rescale_ts(
         &enc_pkt,
         stream_ctx[stream_index].enc_ctx->time_base,
         ofmt_ctx->streams[stream_index]->time_base);
+
+    av_log(NULL, AV_LOG_VERBOSE, "Write packet %3" PRId64 " (size=%5d)\n", enc_pkt.pts, enc_pkt.size);
 
     // mux encoded frame
     ret = av_interleaved_write_frame(ofmt_ctx, &enc_pkt);
@@ -557,6 +557,8 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index) 
       break;
     }
 
+    filt_frame->pts = frame->pts;
+
     ret = av_buffersink_get_frame(filter_ctx[stream_index].buffersink_ctx,
         filt_frame);
 
@@ -572,7 +574,6 @@ static int filter_encode_write_frame(AVFrame *frame, unsigned int stream_index) 
     }
 
     filt_frame->pict_type = AV_PICTURE_TYPE_NONE;
-    filt_frame->pts = frame->pts;
 
     ret = encode_write_frame(filt_frame, stream_index);
   }
@@ -616,6 +617,8 @@ static int decode(AVCodecContext *dec_ctx,
       av_log(NULL, AV_LOG_ERROR, "Error during decoding\n");
       return ret;
     }
+
+    av_log(NULL, AV_LOG_DEBUG, "Received %3" PRId64 " when decoding (%3" PRId64 ")\n", frame->pts, frame->best_effort_timestamp);
 
     frame->pts = frame->best_effort_timestamp;
     ret = filter_encode_write_frame(frame, stream_index);
