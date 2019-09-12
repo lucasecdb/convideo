@@ -52,6 +52,7 @@ const App: React.FC = () => {
       }
     }
   }, [])
+
   const handleFile = async (inputFile: File) => {
     if (inputFile.size > FILE_SIZE_LIMIT) {
       setShowFileSizeError(true)
