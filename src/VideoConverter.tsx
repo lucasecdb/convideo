@@ -26,9 +26,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [verbose, setVerbose] = useState(false)
 
   const [selectedFormat, setSelectedFormat] = useState<string>('matroska')
-  const [selectedVideoCodec, setSelectedVideoCodec] = useState<string>(
-    'libx264'
-  )
+  const [selectedVideoCodec, setSelectedVideoCodec] = useState<string>('mpeg4')
   const [selectedAudioCodec, setSelectedAudioCodec] = useState<string>('aac')
 
   const videoUrl = URL.createObjectURL(video)

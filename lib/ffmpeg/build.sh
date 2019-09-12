@@ -17,8 +17,8 @@ PROGRAM_NAME=convert
 
 FILTERS=anull,aresample,crop,null,overlay,rotate,scale,transpose,vflip
 DEMUXERS=avi,concat,flv,gif,image2,matroska,mov,mp3,mpegps,ogg
-MUXERS=avi,flv,gif,image2,matroska,mov,mp4,mp3,null,ogg
-ENCODERS=aac,ac3,gif,libx264,libmp3lame
+MUXERS=avi,matroska,mov,mp4,mp3,ogg
+ENCODERS=aac,ac3,libx264,libmp3lame,mpeg4
 DECODERS="aac,\
 ac3,\
 ass,\
