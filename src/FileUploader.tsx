@@ -23,6 +23,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
   return (
     <div
       {...rootProps}
+      tabIndex={-1}
       className={classNames(
         'min-vh-100 h-100 relative flex flex-column items-center justify-center',
         {
