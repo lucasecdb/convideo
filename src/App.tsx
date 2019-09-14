@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import classNames from 'classnames'
+import React, { useEffect, useReducer } from 'react'
 
 import Dialog, {
   DialogTitle,
@@ -12,7 +13,7 @@ import NotificationToasts from './NotificationToasts'
 import registerSW from './registerSW'
 import { notificationState } from './notification/index'
 
-import './App.css'
+import styles from './App.module.scss'
 
 const FILE_SIZE_LIMIT = 200 * 1024 * 1024 // 200 Mb
 
@@ -134,7 +135,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-column min-vh-100">
       {file ? (
         <VideoConverter
           video={file}
@@ -143,6 +144,7 @@ const App: React.FC = () => {
       ) : (
         <>
           <FileUploader
+            className={styles.fileUploader}
             onFile={handleFile}
             onError={message => {
               dispatch({ type: 'set error', title: 'Error', message })
@@ -159,10 +161,39 @@ const App: React.FC = () => {
               <Button onClick={handleDialogClose}>Close</Button>
             </DialogActions>
           </Dialog>
+          <footer className="w-100 pv3">
+            <ul
+              className={classNames(
+                styles.footerList,
+                'flex justify-center list'
+              )}
+            >
+              <li>
+                <a
+                  className="link underline-hover"
+                  href="https://github.com/lucasecdb/convideo"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  View the code
+                </a>
+              </li>
+              <li>
+                <a
+                  className="link underline-hover"
+                  href="https://github.com/lucasecdb/convideo/issues"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  Report a bug
+                </a>
+              </li>
+            </ul>
+          </footer>
         </>
       )}
       <NotificationToasts />
-    </>
+    </div>
   )
 }
 

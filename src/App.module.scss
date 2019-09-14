@@ -1,0 +1,29 @@
+@import "./variables";
+
+.fileUploader {
+  flex: 1;
+}
+
+.footerList li {
+  position: relative;
+  padding: 0 .75rem;
+}
+
+.footerList a {
+  color: $mdc-theme-on-surface;
+}
+
+.footerList li:first-child::before {
+  display: none;
+}
+
+.footerList li::before {
+  content: ' ';
+  position: absolute;
+  left: calc(-.375rem + 3px);
+  top: calc(50% - 2.5px);
+  height: 5px;
+  width: 5px;
+  background-color: $mdc-theme-on-surface;
+  border-radius: 100%;
+}

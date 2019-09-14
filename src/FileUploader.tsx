@@ -7,11 +7,16 @@ import * as t from './components/Typography'
 import styles from './FileUploader.module.scss'
 
 interface Props {
+  className?: string
   onFile: (file: File) => void
   onError?: (errorMessage: string) => void
 }
 
-const FileUploader: React.FC<Props> = ({ onFile, onError = () => {} }) => {
+const FileUploader: React.FC<Props> = ({
+  className,
+  onFile,
+  onError = () => {},
+}) => {
   const { isDragActive, getRootProps, getInputProps } = useDropzone({
     accept: 'video/*',
     onDrop: (acceptedFiles, rejectedFiles) => {
@@ -40,7 +45,8 @@ const FileUploader: React.FC<Props> = ({ onFile, onError = () => {} }) => {
       {...rootProps}
       tabIndex={-1}
       className={classNames(
-        'outline-0 min-vh-100 h-100 relative flex flex-column items-center justify-center',
+        className,
+        'outline-0 relative flex flex-column items-center justify-center',
         {
           [styles.containerDragActive]: isDragActive,
         }
