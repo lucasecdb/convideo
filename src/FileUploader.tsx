@@ -8,13 +8,28 @@ import styles from './FileUploader.module.scss'
 
 interface Props {
   onFile: (file: File) => void
+  onError?: (errorMessage: string) => void
 }
 
-const FileUploader: React.FC<Props> = ({ onFile }) => {
+const FileUploader: React.FC<Props> = ({ onFile, onError = () => {} }) => {
   const { isDragActive, getRootProps, getInputProps } = useDropzone({
     accept: 'video/*',
-    onDropAccepted: files => {
-      onFile(files[0])
+    onDrop: (acceptedFiles, rejectedFiles) => {
+      const uploadedFiles = acceptedFiles.length + rejectedFiles.length
+
+      if (uploadedFiles > 1) {
+        onError('Select only one file at a time')
+        return
+      }
+
+      if (rejectedFiles.length > 0) {
+        const [file] = rejectedFiles
+
+        onError(`Invalid file format '${file.type}'`)
+        return
+      }
+
+      onFile(acceptedFiles[0])
     },
   })
 
@@ -25,7 +40,7 @@ const FileUploader: React.FC<Props> = ({ onFile }) => {
       {...rootProps}
       tabIndex={-1}
       className={classNames(
-        'min-vh-100 h-100 relative flex flex-column items-center justify-center',
+        'outline-0 min-vh-100 h-100 relative flex flex-column items-center justify-center',
         {
           [styles.containerDragActive]: isDragActive,
         }
