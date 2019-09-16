@@ -2,7 +2,7 @@ import { expose } from 'comlink'
 
 import wasmUrl from '../../../lib/ffmpeg/convert.wasm'
 import memUrl from '../../../lib/ffmpeg/asm/convert.js.mem'
-import { initEmscriptenModule, ModuleFactory } from '../util'
+import { ModuleFactory, initEmscriptenModule } from '../util'
 
 type FFModule = import('../../../lib/ffmpeg/convert').FFModule
 export type ConvertOptions = import('../../../lib/ffmpeg/convert').ConvertOptions

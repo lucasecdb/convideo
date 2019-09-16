@@ -2,9 +2,9 @@ import classNames from 'classnames'
 import React, { useEffect, useReducer } from 'react'
 
 import Dialog, {
-  DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
+  DialogTitle,
 } from './components/Dialog'
 import Button from './components/Button'
 import FileUploader from './FileUploader'

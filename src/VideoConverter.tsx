@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Button from './components/Button'
 import Checkbox from './components/Checkbox'
@@ -7,7 +7,7 @@ import FormField from './components/FormField'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
-import { convert, listEncoders, Codec, listMuxers, Muxer } from './ffmpeg'
+import { Codec, Muxer, convert, listEncoders, listMuxers } from './ffmpeg'
 import Icon from './components/Icon'
 import { downloadFile } from 'utils'
 
