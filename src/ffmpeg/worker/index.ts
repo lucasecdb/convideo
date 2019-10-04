@@ -35,9 +35,15 @@ export interface Muxer {
   videoCodec?: number
 }
 
+interface Metric {
+  elapsedTime: number
+}
+
 class FFmpeg {
   private _wasmModule: Promise<FFModule> | undefined
   private _asmModule: Promise<FFModule> | undefined
+
+  private runtimeMetrics: Metric[] = []
 
   private get wasm() {
     if (!this._wasmModule) {
@@ -77,7 +83,14 @@ class FFmpeg {
     opts: ConvertOptions
   ) => {
     try {
+      const start = performance.now()
       const resultView = instance.convert(new Uint8ClampedArray(data), opts)
+      const end = performance.now()
+
+      const elapsedTime = (end - start) / 1000
+
+      this.runtimeMetrics.push({ elapsedTime })
+
       const result = new Uint8ClampedArray(resultView)
 
       instance.free_result()

@@ -24,6 +24,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [muxers, setMuxers] = useState<Muxer[] | null>(null)
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
+  const [skipDownload, setSkipDownload] = useState(false)
 
   const [selectedFormat, setSelectedFormat] = useState<string>('matroska')
   const [selectedVideoCodec, setSelectedVideoCodec] = useState<string>('mpeg4')
@@ -37,6 +38,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
   const handleVerboseToggle = () => {
     setVerbose(prevVerbose => !prevVerbose)
+  }
+
+  const handleSkipDownloadToggle = () => {
+    setSkipDownload(prevSkip => !prevSkip)
   }
 
   const format = muxers
@@ -58,8 +63,6 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
     setConvertInProgress(true)
 
-    const start = performance.now()
-
     const convertedVideoBuffer = await convert(videoArrayBuffer, {
       asm: asmEnabled,
       verbose,
@@ -68,15 +71,13 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       audioEncoder: audioCodec.name,
     })
 
-    const end = performance.now()
-
-    const elapsedTime = (end - start) / 1000
-
-    console.log(`Conversion duration: ${elapsedTime.toFixed(2)} seconds`)
-
     setConvertInProgress(false)
 
     if (convertedVideoBuffer === null || !convertedVideoBuffer.byteLength) {
+      return
+    }
+
+    if (skipDownload) {
       return
     }
 
@@ -206,6 +207,19 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             }
             label={<span>Verbose (debug only)</span>}
             inputId="verbose"
+          />
+
+          <FormField
+            input={
+              <Checkbox
+                nativeControlId="skipDownload"
+                name="skipDownload"
+                onChange={handleSkipDownloadToggle}
+                checked={skipDownload}
+              />
+            }
+            label={<span>Skip download</span>}
+            inputId="skipDownload"
           />
         </div>
       </div>
