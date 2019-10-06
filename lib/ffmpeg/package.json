@@ -2,13 +2,12 @@
   "name": "ffmpeg",
   "scripts": {
     "install": "napa",
-    "build": "docker run --rm -it -v $(pwd):/src trzeci/emscripten ./build.sh",
-    "build:asm": "docker run --rm -it -v $(pwd):/src -e ASM=1 trzeci/emscripten ./build.sh",
-    "build:ffmpeg:asm": "docker run --rm -it -v $(pwd):/src -e ASM=1 -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
-    "build:ffmpeg:wasm": "docker run --rm -it -v $(pwd):/src -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
-    "build:bind": "yarn build:bind:wasm && yarn build:bind:asm",
-    "build:bind:wasm": "docker run --rm -it -v $(pwd):/src -e SKIP_BUILD=1 trzeci/emscripten ./build.sh",
-    "build:bind:asm": "docker run --rm -it -v $(pwd):/src -e ASM=1 -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
+    "build": "docker run --rm -it -v $(pwd):/src -e ASM=1 trzeci/emscripten ./build.sh",
+    "build:asm": "docker run --rm -it -v $(pwd):/src -e ASM_ONLY=1 trzeci/emscripten ./build.sh",
+    "build:ffmpeg": "docker run --rm -it -v $(pwd):/src -e ASM=1 -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
+    "build:ffmpeg:asm": "docker run --rm -it -v $(pwd):/src -e ASM_ONLY=1 -e SKIP_X264=1 -e SKIP_LAME=1 -e SKIP_ZLIB=1 trzeci/emscripten ./build.sh",
+    "build:bind": "docker run --rm -it -v $(pwd):/src -e ASM=1 -e SKIP_BUILD=1 trzeci/emscripten ./build.sh",
+    "build:bind:asm": "docker run --rm -it -v $(pwd):/src -e ASM_ONLY=1 -e SKIP_BUILD=1 trzeci/emscripten ./build.sh"
  },
   "napa": {
     "ffmpeg": "git+https://git.ffmpeg.org/ffmpeg.git",

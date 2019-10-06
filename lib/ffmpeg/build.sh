@@ -185,7 +185,10 @@ echo "=========================="
 echo "Generating bidings"
 echo "=========================="
 (
-  if [ $ASM ]; then
+  if [[ $ASM_ONLY || $ASM ]]; then
+    echo "******************************************"
+    echo "Generating asm.js bindings"
+    echo "******************************************"
     mkdir -p asm
     emcc \
       -O3 \
@@ -194,7 +197,12 @@ echo "=========================="
       -s ALLOW_MEMORY_GROWTH=1 \
       -s USE_CLOSURE_COMPILER=1 \
       -o asm/$PROGRAM_NAME.js
-  else
+  fi
+
+  if [[ ! $ASM_ONLY ]]; then
+    echo "******************************************"
+    echo "Generating wasm bindings"
+    echo "******************************************"
     emcc \
       $OPTIMIZE \
       $EMSCRIPTEN_COMMON_ARGS \
