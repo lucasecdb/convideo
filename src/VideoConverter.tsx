@@ -26,12 +26,17 @@ interface Props {
 }
 
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
-  const [convertInProgress, setConvertInProgress] = useState(false)
+  const [conversionInProgress, setConversionInProgress] = useState(false)
+  const [convertedVideos, setConvertedVideos] = useState(0)
+
   const [encoders, setEncoders] = useState<Codec[] | null>(null)
   const [muxers, setMuxers] = useState<Muxer[] | null>(null)
+
   const [asmEnabled, setAsmEnabled] = useState(false)
   const [verbose, setVerbose] = useState(false)
   const [skipDownload, setSkipDownload] = useState(false)
+  const [batchMode, setBatchMode] = useState(false)
+  const [batchNumber, setBatchNumber] = useState(1)
 
   const [selectedFormat, setSelectedFormat] = useState<string>('matroska')
   const [selectedVideoCodec, setSelectedVideoCodec] = useState<string>('mpeg4')
@@ -49,6 +54,22 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
 
   const handleSkipDownloadToggle = () => {
     setSkipDownload(prevSkip => !prevSkip)
+  }
+
+  const handleBatchModeToggle = () => {
+    setBatchMode(prevBatchMode => !prevBatchMode)
+  }
+
+  const handleBatchNumberChange = (
+    evt: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = Number(evt.target.value)
+
+    if (value <= 0) {
+      return
+    }
+
+    setBatchNumber(value)
   }
 
   const format = muxers
@@ -100,7 +121,23 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
 
-    setConvertInProgress(true)
+    setConversionInProgress(true)
+    setConvertedVideos(0)
+
+    if (batchMode) {
+      for (let i = 0; i < batchNumber - 1; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        await convert(videoArrayBuffer, video.name, {
+          asm: asmEnabled,
+          verbose,
+          outputFormat: format.name,
+          videoEncoder: videoCodec.name,
+          audioEncoder: audioCodec.name,
+        })
+
+        setConvertedVideos(prev => prev + 1)
+      }
+    }
 
     const convertedVideoBuffer = await convert(videoArrayBuffer, video.name, {
       asm: asmEnabled,
@@ -110,7 +147,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       audioEncoder: audioCodec.name,
     })
 
-    setConvertInProgress(false)
+    setConversionInProgress(false)
 
     if (convertedVideoBuffer === null || !convertedVideoBuffer.byteLength) {
       return
@@ -238,6 +275,28 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           <FormField
             input={
               <Checkbox
+                nativeControlId="batchMode"
+                name="batchMode"
+                onChange={handleBatchModeToggle}
+                checked={batchMode}
+              />
+            }
+            label={<span>Batch mode</span>}
+            inputId="batchMode"
+          />
+
+          {batchMode && (
+            <input
+              type="number"
+              value={batchNumber}
+              onChange={handleBatchNumberChange}
+              placeholder="Batch number"
+            />
+          )}
+
+          <FormField
+            input={
+              <Checkbox
                 nativeControlId="verbose"
                 name="verbose"
                 onChange={handleVerboseToggle}
@@ -272,13 +331,20 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
         </div>
       </div>
       <Button
-        disabled={convertInProgress}
+        disabled={conversionInProgress}
         raised
         className="mt3 f6 self-center"
         onClick={handleConvert}
       >
-        {convertInProgress ? (
-          <CircularProgress className={styles.spinner} size={18} />
+        {conversionInProgress ? (
+          <>
+            {batchMode && (
+              <span className="dib mr2">
+                {convertedVideos} / {batchNumber}
+              </span>
+            )}
+            <CircularProgress className={styles.spinner} size={18} />
+          </>
         ) : (
           'Convert'
         )}
