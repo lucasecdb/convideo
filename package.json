@@ -31,11 +31,12 @@
     "react-dom": "^16.9.0",
     "react-dropzone": "^10.1.8",
     "uuid": "^3.3.3",
-    "workbox-cacheable-response": "^5.0.0-beta.0",
-    "workbox-expiration": "^5.0.0-beta.0",
-    "workbox-precaching": "^5.0.0-beta.0",
-    "workbox-routing": "^5.0.0-beta.0",
-    "workbox-strategies": "^5.0.0-beta.0"
+    "workbox-cacheable-response": "^5.0.0-beta.1",
+    "workbox-core": "^5.0.0-beta.1",
+    "workbox-expiration": "^5.0.0-beta.1",
+    "workbox-precaching": "^5.0.0-beta.1",
+    "workbox-routing": "^5.0.0-beta.1",
+    "workbox-strategies": "^5.0.0-beta.1"
   },
   "devDependencies": {
     "@babel/core": "7.5.5",

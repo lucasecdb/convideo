@@ -10,6 +10,7 @@ import {
   StaleWhileRevalidate,
 } from 'workbox-strategies'
 import { registerRoute } from 'workbox-routing'
+import { skipWaiting } from 'workbox-core'
 
 const ASSETS_REGEX = /\.(?:js|css|wasm|mem)$/
 const IMAGE_REGEX = /\.(?:png|gif|jpg|jpeg|webp|svg)$/
@@ -21,6 +22,7 @@ declare global {
 }
 
 precacheAndRoute(self.__WB_MANIFEST, {})
+skipWaiting()
 
 const networkFirstHandler = new NetworkFirst()
 
