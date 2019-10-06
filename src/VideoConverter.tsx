@@ -7,7 +7,14 @@ import FormField from './components/FormField'
 import CircularProgress from './components/CircularProgress'
 import * as t from './components/Typography'
 import VideoPlayer from './VideoPlayer'
-import { Codec, Muxer, convert, listEncoders, listMuxers } from './ffmpeg'
+import {
+  Codec,
+  Muxer,
+  convert,
+  listEncoders,
+  listMuxers,
+  retrieveMetrics,
+} from './ffmpeg'
 import Icon from './components/Icon'
 import { downloadFile } from 'utils'
 
@@ -58,12 +65,45 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     ? audioCodecs.find(codec => codec.name === selectedAudioCodec)
     : null
 
+  const handleMetricsDownload = async () => {
+    const metrics = await retrieveMetrics()
+
+    const header =
+      'filename,elapsed_time,input_size,output_size,format,video_codec,audio_codec,wasm'
+
+    const body = metrics
+      .map(metric =>
+        JSON.stringify(metric.file) +
+        ',' +
+        metric.elapsedTime +
+        ',' +
+        metric.inputSize +
+        ',' +
+        metric.outputSize +
+        ',' +
+        JSON.stringify(metric.format) +
+        ',' +
+        JSON.stringify(metric.videoCodec) +
+        ',' +
+        JSON.stringify(metric.audioCodec) +
+        ',' +
+        metric.wasm
+          ? 1
+          : 0
+      )
+      .join('\n')
+
+    const csv = header + '\n' + body
+
+    downloadFile('metrics.csv', csv)
+  }
+
   const handleConvert = async () => {
     const videoArrayBuffer = await new Response(video).arrayBuffer()
 
     setConvertInProgress(true)
 
-    const convertedVideoBuffer = await convert(videoArrayBuffer, {
+    const convertedVideoBuffer = await convert(videoArrayBuffer, video.name, {
       asm: asmEnabled,
       verbose,
       outputFormat: format.name,
@@ -221,6 +261,15 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             label={<span>Skip download</span>}
             inputId="skipDownload"
           />
+
+          <Button
+            className="mt3"
+            onClick={handleMetricsDownload}
+            dense
+            type="button"
+          >
+            Download metrics
+          </Button>
         </div>
       </div>
       <Button

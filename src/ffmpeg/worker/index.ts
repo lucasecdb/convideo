@@ -37,6 +37,13 @@ export interface Muxer {
 
 interface Metric {
   elapsedTime: number
+  file: string
+  inputSize: number
+  outputSize: number
+  format: string
+  videoCodec: string
+  audioCodec: string
+  wasm: boolean
 }
 
 class FFmpeg {
@@ -80,7 +87,9 @@ class FFmpeg {
   private _convert = async (
     instance: FFModule,
     data: ArrayBuffer,
-    opts: ConvertOptions
+    filename: string,
+    opts: ConvertOptions,
+    wasm: boolean
   ) => {
     try {
       const start = performance.now()
@@ -89,30 +98,49 @@ class FFmpeg {
 
       const elapsedTime = (end - start) / 1000
 
-      this.runtimeMetrics.push({ elapsedTime })
-
       const result = new Uint8ClampedArray(resultView)
+
+      this.runtimeMetrics.push({
+        elapsedTime,
+        file: filename,
+        inputSize: data.byteLength,
+        outputSize: resultView.byteLength,
+        format: opts.outputFormat,
+        videoCodec: opts.videoEncoder,
+        audioCodec: opts.audioEncoder,
+        wasm,
+      })
 
       instance.free_result()
 
       return result.buffer as ArrayBuffer
-    } catch (_) {
+    } catch (err) {
+      console.error(err)
+
       instance.free_result()
 
       return null
     }
   }
 
-  public convert = async (data: ArrayBuffer, opts: ConvertOptions) => {
+  public convert = async (
+    data: ArrayBuffer,
+    filename: string,
+    opts: ConvertOptions
+  ) => {
     const wasm = await this.wasm
 
-    return this._convert(wasm, data, opts)
+    return this._convert(wasm, data, filename, opts, true)
   }
 
-  public convertAsm = async (data: ArrayBuffer, opts: ConvertOptions) => {
+  public convertAsm = async (
+    data: ArrayBuffer,
+    filename: string,
+    opts: ConvertOptions
+  ) => {
     const asm = await this.asm
 
-    return this._convert(asm, data, opts)
+    return this._convert(asm, data, filename, opts, false)
   }
 
   public listEncoders = async () => {
@@ -180,6 +208,10 @@ class FFmpeg {
     }
 
     return muxers
+  }
+
+  public getMetrics = () => {
+    return this.runtimeMetrics
   }
 }
 

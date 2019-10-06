@@ -28,15 +28,16 @@ const getAPI = (() => {
 
 export async function convert(
   data: ArrayBuffer,
+  filename: string,
   { asm = false, ...opts }: Options
 ) {
   const api = await getAPI()
 
   if (asm) {
-    return api.convertAsm(data, opts)
+    return api.convertAsm(data, filename, opts)
   }
 
-  return api.convert(data, opts)
+  return api.convert(data, filename, opts)
 }
 
 export async function listEncoders() {
@@ -49,4 +50,10 @@ export async function listMuxers() {
   const api = await getAPI()
 
   return api.listMuxers()
+}
+
+export async function retrieveMetrics() {
+  const api = await getAPI()
+
+  return api.getMetrics()
 }
