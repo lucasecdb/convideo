@@ -46,10 +46,11 @@ libswscale.a,\
 libswresample.a,\
 libavutil.a"
 
-echo "=========================="
-echo "Compiling libx264"
-echo "=========================="
 test -n "$SKIP_BUILD" || test -n "$SKIP_X264" || (
+  echo "=========================="
+  echo "Compiling libx264"
+  echo "=========================="
+
   cd node_modules/libx264
   if ! patch -R -s -f -p1 --dry-run < ../../x264-configure.patch; then
     patch -p1 < ../../x264-configure.patch
@@ -71,15 +72,17 @@ test -n "$SKIP_BUILD" || test -n "$SKIP_X264" || (
     --disable-lsmash
   emmake make -j8
   emmake make install
-)
-echo "=========================="
-echo "Compiling libx264 done"
-echo "=========================="
 
-echo "=========================="
-echo "Compiling lame"
-echo "=========================="
+  echo "=========================="
+  echo "Compiling libx264 done"
+  echo "=========================="
+)
+
 test -n "$SKIP_BUILD" || test -n "$SKIP_LAME" || (
+  echo "=========================="
+  echo "Compiling lame"
+  echo "=========================="
+
   cd node_modules/libmp3lame
   emconfigure ./configure \
     --prefix=${PREFIX} \
@@ -92,28 +95,32 @@ test -n "$SKIP_BUILD" || test -n "$SKIP_LAME" || (
     --disable-frontend
   emmake make -j8
   emmake make install
-)
-echo "=========================="
-echo "Compiling lame done"
-echo "=========================="
 
-echo "=========================="
-echo "Compiling zlib"
-echo "=========================="
+  echo "=========================="
+  echo "Compiling lame done"
+  echo "=========================="
+)
+
 test -n "$SKIP_BUILD" || test -n "$SKIP_ZLIB" || (
+  echo "=========================="
+  echo "Compiling zlib"
+  echo "=========================="
+
   cd node_modules/zlib
   emconfigure ./configure --prefix=${PREFIX}
   emmake make -j8
   emmake make install
-)
-echo "=========================="
-echo "Compiling zlib done"
-echo "=========================="
 
-echo "=========================="
-echo "Compiling ffmpeg"
-echo "=========================="
+  echo "=========================="
+  echo "Compiling zlib done"
+  echo "=========================="
+)
+
 test -n "$SKIP_BUILD" || (
+  echo "=========================="
+  echo "Compiling ffmpeg"
+  echo "=========================="
+
   cd node_modules/ffmpeg
   EM_PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig emconfigure ./configure \
     --prefix=${PREFIX} \
@@ -162,10 +169,11 @@ test -n "$SKIP_BUILD" || (
     --extra-ldflags="-L ${PREFIX}/lib"
   emmake make -j8
   emmake make install
+
+  echo "=========================="
+  echo "Compiling ffmpeg done"
+  echo "=========================="
 )
-echo "=========================="
-echo "Compiling ffmpeg done"
-echo "=========================="
 
 EMSCRIPTEN_COMMON_ARGS="--bind \
   --closure 1 \
