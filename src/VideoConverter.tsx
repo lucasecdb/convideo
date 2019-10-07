@@ -28,6 +28,7 @@ interface Props {
 const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
   const [conversionInProgress, setConversionInProgress] = useState(false)
   const [convertedVideos, setConvertedVideos] = useState(0)
+  const [advancedOptionsOpen, setAdvancedOptionsOpen] = useState(false)
 
   const [encoders, setEncoders] = useState<Codec[] | null>(null)
   const [muxers, setMuxers] = useState<Muxer[] | null>(null)
@@ -70,6 +71,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     }
 
     setBatchNumber(value)
+  }
+
+  const handleAdvancedOptionsToggle = () => {
+    setAdvancedOptionsOpen(prevOpen => !prevOpen)
   }
 
   const format = muxers
@@ -258,76 +263,101 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             </select>
           </label>
 
-          <FormField
-            className="mt3"
-            input={
-              <Checkbox
-                nativeControlId="asm"
-                name="asm"
-                onChange={handleAsmToggle}
-                checked={asmEnabled}
-              />
-            }
-            label={<span>Use asm.js</span>}
-            inputId="asm"
-          />
-
-          <FormField
-            input={
-              <Checkbox
-                nativeControlId="batchMode"
-                name="batchMode"
-                onChange={handleBatchModeToggle}
-                checked={batchMode}
-              />
-            }
-            label={<span>Batch mode</span>}
-            inputId="batchMode"
-          />
-
-          {batchMode && (
-            <input
-              type="number"
-              value={batchNumber}
-              onChange={handleBatchNumberChange}
-              placeholder="Batch number"
-            />
-          )}
-
-          <FormField
-            input={
-              <Checkbox
-                nativeControlId="verbose"
-                name="verbose"
-                onChange={handleVerboseToggle}
-                checked={verbose}
-              />
-            }
-            label={<span>Verbose (debug only)</span>}
-            inputId="verbose"
-          />
-
-          <FormField
-            input={
-              <Checkbox
-                nativeControlId="skipDownload"
-                name="skipDownload"
-                onChange={handleSkipDownloadToggle}
-                checked={skipDownload}
-              />
-            }
-            label={<span>Skip download</span>}
-            inputId="skipDownload"
-          />
-
-          <Button
-            className="mt3"
-            onClick={handleMetricsDownload}
-            dense
-            type="button"
+          <button
+            id="advanced-options"
+            className="bg-transparent color-inherit bn ma0 outline-0 mt3 pv2 pointer flex items-center"
+            aria-controls="advanced-options-sect"
+            aria-expanded={advancedOptionsOpen}
+            onClick={handleAdvancedOptionsToggle}
           >
-            Download metrics
-          </Button>
+            <Icon
+              aria-hidden="true"
+              icon={
+                advancedOptionsOpen
+                  ? 'keyboard_arrow_up'
+                  : 'keyboard_arrow_down'
+              }
+            />
+            <t.Caption>Advanced options</t.Caption>
+          </button>
+
+          <div
+            id="advanced-options-sect"
+            className={classNames('flex-column', { flex: advancedOptionsOpen })}
+            role="region"
+            aria-labelledby="advanced-options"
+            hidden={!advancedOptionsOpen}
+          >
+            <FormField
+              input={
+                <Checkbox
+                  nativeControlId="asm"
+                  name="asm"
+                  onChange={handleAsmToggle}
+                  checked={asmEnabled}
+                />
+              }
+              label={<span>Use asm.js</span>}
+              inputId="asm"
+            />
+
+            <FormField
+              input={
+                <Checkbox
+                  nativeControlId="batchMode"
+                  name="batchMode"
+                  onChange={handleBatchModeToggle}
+                  checked={batchMode}
+                />
+              }
+              label={<span>Batch mode</span>}
+              inputId="batchMode"
+            />
+
+            {batchMode && (
+              <input
+                type="number"
+                value={batchNumber}
+                onChange={handleBatchNumberChange}
+                placeholder="Batch number"
+              />
+            )}
+
+            <FormField
+              input={
+                <Checkbox
+                  nativeControlId="verbose"
+                  name="verbose"
+                  onChange={handleVerboseToggle}
+                  checked={verbose}
+                />
+              }
+              label={<span>Verbose (debug only)</span>}
+              inputId="verbose"
+            />
+
+            <FormField
+              input={
+                <Checkbox
+                  nativeControlId="skipDownload"
+                  name="skipDownload"
+                  onChange={handleSkipDownloadToggle}
+                  checked={skipDownload}
+                />
+              }
+              label={<span>Skip download</span>}
+              inputId="skipDownload"
+            />
+
+            <Button
+              className="mt3"
+              onClick={handleMetricsDownload}
+              dense
+              type="button"
+            >
+              Download metrics
+            </Button>
+          </div>
         </div>
       </div>
       <Button
