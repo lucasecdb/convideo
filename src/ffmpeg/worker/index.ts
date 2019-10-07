@@ -100,6 +100,8 @@ class FFmpeg {
 
       const result = new Uint8ClampedArray(resultView)
 
+      instance.free_result()
+
       this.runtimeMetrics.push({
         elapsedTime,
         file: filename,
@@ -110,8 +112,6 @@ class FFmpeg {
         audioCodec: opts.audioEncoder,
         wasm,
       })
-
-      instance.free_result()
 
       return result.buffer as ArrayBuffer
     } catch (err) {
