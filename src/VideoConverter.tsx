@@ -95,7 +95,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     const metrics = await retrieveMetrics()
 
     const header =
-      'filename,elapsed_time,input_size,output_size,format,video_codec,audio_codec,wasm'
+      'filename,elapsed_time,input_size,output_size,format,video_codec,audio_codec,wasm,index'
 
     const body = metrics
       .map(
@@ -114,7 +114,9 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           ',' +
           JSON.stringify(metric.audioCodec) +
           ',' +
-          (metric.wasm ? 1 : 0)
+          (metric.wasm ? 1 : 0) +
+          ',' +
+          metric.index
       )
       .join('\n')
 

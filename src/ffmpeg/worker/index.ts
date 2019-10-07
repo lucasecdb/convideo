@@ -44,6 +44,12 @@ interface Metric {
   videoCodec: string
   audioCodec: string
   wasm: boolean
+  index: number
+}
+
+interface RunInfo {
+  wasm: number
+  asm: number
 }
 
 class FFmpeg {
@@ -51,6 +57,8 @@ class FFmpeg {
   private _asmModule: Promise<FFModule> | undefined
 
   private runtimeMetrics: Metric[] = []
+
+  private fileRunMap: Record<string, RunInfo> = {}
 
   private get wasm() {
     if (!this._wasmModule) {
@@ -102,6 +110,19 @@ class FFmpeg {
 
       instance.free_result()
 
+      if (!this.fileRunMap[filename]) {
+        this.fileRunMap[filename] = {
+          wasm: 0,
+          asm: 0,
+        }
+      }
+
+      if (wasm) {
+        this.fileRunMap[filename].wasm++
+      } else {
+        this.fileRunMap[filename].asm++
+      }
+
       this.runtimeMetrics.push({
         elapsedTime,
         file: filename,
@@ -111,6 +132,9 @@ class FFmpeg {
         videoCodec: opts.videoEncoder,
         audioCodec: opts.audioEncoder,
         wasm,
+        index: wasm
+          ? this.fileRunMap[filename].wasm
+          : this.fileRunMap[filename].asm,
       })
 
       return result.buffer as ArrayBuffer
