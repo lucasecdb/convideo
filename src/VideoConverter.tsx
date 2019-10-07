@@ -310,18 +310,25 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
                   checked={batchMode}
                 />
               }
-              label={<span>Batch mode</span>}
+              label={
+                <span>
+                  Batch mode{' '}
+                  {batchMode && (
+                    <input
+                      className={classNames(
+                        styles.numberInput,
+                        'bg-transparent color-inherit ml2 pv1 ph2'
+                      )}
+                      type="number"
+                      value={batchNumber}
+                      onChange={handleBatchNumberChange}
+                      placeholder="Batch number"
+                    />
+                  )}
+                </span>
+              }
               inputId="batchMode"
             />
-
-            {batchMode && (
-              <input
-                type="number"
-                value={batchNumber}
-                onChange={handleBatchNumberChange}
-                placeholder="Batch number"
-              />
-            )}
 
             <FormField
               input={
