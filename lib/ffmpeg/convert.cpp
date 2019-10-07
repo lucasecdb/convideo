@@ -1,8 +1,21 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
+extern "C" {
+#include "libavcodec/avcodec.h"
+#include "libavformat/avformat.h"
+#include "libavfilter/buffersink.h"
+#include "libavfilter/buffersrc.h"
+#include "libavutil/opt.h"
+#include "libavutil/pixdesc.h"
+#include "libavutil/display.h"
+#include "libavutil/eval.h"
+}
+
 using namespace emscripten;
 using std::string;
+
+extern int main(int argc, char** argv);
 
 std::vector<AVCodec> list_encoders() {
   std::vector<AVCodec> codec_list;
@@ -86,12 +99,6 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .property("audio_codec", &AVOutputFormat::audio_codec)
     .property("video_codec", &AVOutputFormat::video_codec);
 
-  value_object<Options>("Options")
-    .field("verbose", &Options::verbose)
-    .field("outputFormat", &Options::outputFormat)
-    .field("videoEncoder", &Options::videoEncoder)
-    .field("audioEncoder", &Options::audioEncoder);
-
   constant("AV_CODEC_CAP_DRAW_HORIZ_BAND", AV_CODEC_CAP_DRAW_HORIZ_BAND);
   constant("AV_CODEC_CAP_DR1", AV_CODEC_CAP_DR1);
   constant("AV_CODEC_CAP_TRUNCATED", AV_CODEC_CAP_TRUNCATED);
@@ -112,8 +119,6 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
   constant("AV_CODEC_CAP_HYBRID", AV_CODEC_CAP_HYBRID);
   constant("AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE", AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE);
 
-  function("convert", &convert);
-  function("free_result", &free_result);
   function("list_encoders", &list_encoders);
   function("list_muxers", &list_muxers);
 

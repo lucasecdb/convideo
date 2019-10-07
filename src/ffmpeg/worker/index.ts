@@ -107,8 +107,6 @@ class FFmpeg {
 
       const result = new Uint8ClampedArray(resultView)
 
-      instance.free_result()
-
       const runtimeMetrics: Metric = {
         elapsedTime,
         file: filename,
@@ -124,8 +122,6 @@ class FFmpeg {
       return { data: result.buffer as ArrayBuffer, metrics: runtimeMetrics }
     } catch (err) {
       console.error(err)
-
-      instance.free_result()
 
       return { data: null }
     }

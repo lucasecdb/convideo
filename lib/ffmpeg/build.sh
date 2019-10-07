@@ -138,6 +138,7 @@ test -n "$SKIP_BUILD" || (
     --disable-all \
     --disable-manpages \
     --disable-stripping \
+    --enable-ffmpeg \
     --enable-avcodec \
     --enable-avformat \
     --enable-avutil \
@@ -187,10 +188,8 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   --pre-js preamble.js \
   node_modules/ffmpeg/ffmpeg.bc \
   convert.cpp \
-  $(eval echo $PREFIX/lib/{$FFMPEG_LIBS}) \
   ${PREFIX}/lib/libmp3lame.so \
-  ${PREFIX}/lib/libx264.so \
-  ${PREFIX}/lib/libz.so"
+  ${PREFIX}/lib/libx264.so"
 
 echo "=========================="
 echo "Generating bidings"
