@@ -303,34 +303,32 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
               inputId="asm"
             />
 
-            <FormField
-              input={
-                <Checkbox
-                  nativeControlId="batchMode"
-                  name="batchMode"
-                  onChange={handleBatchModeToggle}
-                  checked={batchMode}
-                />
-              }
-              label={
-                <span>
-                  Batch mode{' '}
-                  {batchMode && (
-                    <input
-                      className={classNames(
-                        styles.numberInput,
-                        'bg-transparent color-inherit ml2 pv1 ph2'
-                      )}
-                      type="number"
-                      value={batchNumber}
-                      onChange={handleBatchNumberChange}
-                      placeholder="Batch number"
-                    />
+            <div className="flex items-center">
+              <FormField
+                input={
+                  <Checkbox
+                    nativeControlId="batchMode"
+                    name="batchMode"
+                    onChange={handleBatchModeToggle}
+                    checked={batchMode}
+                  />
+                }
+                label={<span>Batch mode </span>}
+                inputId="batchMode"
+              />
+              {batchMode && (
+                <input
+                  className={classNames(
+                    styles.numberInput,
+                    'bg-transparent color-inherit ml2 pv1 ph2'
                   )}
-                </span>
-              }
-              inputId="batchMode"
-            />
+                  type="number"
+                  value={batchNumber}
+                  onChange={handleBatchNumberChange}
+                  placeholder="Batch number"
+                />
+              )}
+            </div>
 
             <FormField
               input={
