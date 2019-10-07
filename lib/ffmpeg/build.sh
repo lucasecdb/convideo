@@ -169,6 +169,7 @@ test -n "$SKIP_BUILD" || (
     --extra-ldflags="-L ${PREFIX}/lib"
   emmake make -j8
   emmake make install
+  cp ffmpeg ffmpeg.bc
 
   echo "=========================="
   echo "Compiling ffmpeg done"
@@ -183,6 +184,8 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   --std=c++17 \
   -x c++ \
   -I ${PREFIX}/include \
+  --pre-js preamble.js \
+  node_modules/ffmpeg/ffmpeg.bc \
   convert.cpp \
   $(eval echo $PREFIX/lib/{$FFMPEG_LIBS}) \
   ${PREFIX}/lib/libmp3lame.so \
