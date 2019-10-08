@@ -35,7 +35,7 @@ export interface Muxer {
   videoCodec?: number
 }
 
-interface Metric {
+export interface Metric {
   elapsedTime: number
   file: string
   inputSize: number
@@ -43,7 +43,7 @@ interface Metric {
   format: string
   videoCodec: string
   audioCodec: string
-  wasm: boolean
+  wasm?: boolean
   index: number
 }
 
@@ -52,13 +52,11 @@ interface RunInfo {
   asm: number
 }
 
+export type FileRuntimeMap = Record<string, RunInfo>
+
 class FFmpeg {
   private _wasmModule: Promise<FFModule> | undefined
   private _asmModule: Promise<FFModule> | undefined
-
-  private runtimeMetrics: Metric[] = []
-
-  private fileRunMap: Record<string, RunInfo> = {}
 
   private get wasm() {
     if (!this._wasmModule) {
@@ -97,7 +95,7 @@ class FFmpeg {
     data: ArrayBuffer,
     filename: string,
     opts: ConvertOptions,
-    wasm: boolean
+    id: number
   ) => {
     try {
       const start = performance.now()
@@ -110,20 +108,7 @@ class FFmpeg {
 
       instance.free_result()
 
-      if (!this.fileRunMap[filename]) {
-        this.fileRunMap[filename] = {
-          wasm: 0,
-          asm: 0,
-        }
-      }
-
-      if (wasm) {
-        this.fileRunMap[filename].wasm++
-      } else {
-        this.fileRunMap[filename].asm++
-      }
-
-      this.runtimeMetrics.push({
+      const runtimeMetrics: Metric = {
         elapsedTime,
         file: filename,
         inputSize: data.byteLength,
@@ -131,40 +116,39 @@ class FFmpeg {
         format: opts.outputFormat,
         videoCodec: opts.videoEncoder,
         audioCodec: opts.audioEncoder,
-        wasm,
-        index: wasm
-          ? this.fileRunMap[filename].wasm
-          : this.fileRunMap[filename].asm,
-      })
+        index: id,
+      }
 
-      return result.buffer as ArrayBuffer
+      return { data: result.buffer as ArrayBuffer, metrics: runtimeMetrics }
     } catch (err) {
       console.error(err)
 
       instance.free_result()
 
-      return null
+      return { data: null }
     }
   }
 
   public convert = async (
+    id: number,
     data: ArrayBuffer,
     filename: string,
     opts: ConvertOptions
   ) => {
     const wasm = await this.wasm
 
-    return this._convert(wasm, data, filename, opts, true)
+    return this._convert(wasm, data, filename, opts, id)
   }
 
   public convertAsm = async (
+    id: number,
     data: ArrayBuffer,
     filename: string,
     opts: ConvertOptions
   ) => {
     const asm = await this.asm
 
-    return this._convert(asm, data, filename, opts, false)
+    return this._convert(asm, data, filename, opts, id)
   }
 
   public listEncoders = async () => {
@@ -232,10 +216,6 @@ class FFmpeg {
     }
 
     return muxers
-  }
-
-  public getMetrics = () => {
-    return this.runtimeMetrics
   }
 }
 

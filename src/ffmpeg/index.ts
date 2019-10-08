@@ -6,9 +6,15 @@ type ConvertOptions = import('./worker').ConvertOptions
 export type Codec = import('./worker').Codec
 export type Muxer = import('./worker').Muxer
 
+type Metric = import('./worker').Metric
+type FileRuntimeMap = import('./worker').FileRuntimeMap
+
 interface Options extends ConvertOptions {
   asm?: boolean
 }
+
+const fileRunMap: FileRuntimeMap = {}
+const runtimeMetrics: Metric[] = []
 
 const getAPI = (() => {
   let worker: Worker
@@ -27,17 +33,39 @@ const getAPI = (() => {
 })()
 
 export async function convert(
-  data: ArrayBuffer,
+  inputData: ArrayBuffer,
   filename: string,
   { asm = false, ...opts }: Options
 ) {
   const api = await getAPI(true)
 
-  if (asm) {
-    return api.convertAsm(data, filename, opts)
+  if (!fileRunMap[filename]) {
+    fileRunMap[filename] = {
+      wasm: 0,
+      asm: 0,
+    }
   }
 
-  return api.convert(data, filename, opts)
+  if (asm) {
+    const id = fileRunMap[filename].asm++
+    const { data, metrics } = await api.convertAsm(
+      id,
+      inputData,
+      filename,
+      opts
+    )
+
+    runtimeMetrics.push(metrics)
+
+    return data
+  }
+
+  const id = fileRunMap[filename].wasm++
+  const { data, metrics } = await api.convert(id, inputData, filename, opts)
+
+  runtimeMetrics.push(metrics)
+
+  return data
 }
 
 export async function listEncoders() {
@@ -53,7 +81,5 @@ export async function listMuxers() {
 }
 
 export async function retrieveMetrics() {
-  const api = await getAPI()
-
-  return api.getMetrics()
+  return runtimeMetrics
 }
