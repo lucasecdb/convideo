@@ -47,7 +47,7 @@ export async function convert(
   }
 
   if (asm) {
-    const id = fileRunMap[filename].asm++
+    const id = ++fileRunMap[filename].asm
     const { data, metrics } = await api.convertAsm(
       id,
       inputData,
@@ -60,7 +60,7 @@ export async function convert(
     return data
   }
 
-  const id = fileRunMap[filename].wasm++
+  const id = ++fileRunMap[filename].wasm
   const { data, metrics } = await api.convert(id, inputData, filename, opts)
 
   runtimeMetrics.push(metrics)
