@@ -14,8 +14,8 @@ const getAPI = (() => {
   let worker: Worker
   let workerAPI: Promise<WorkerAPI>
 
-  return async () => {
-    if (!worker) {
+  return async (reset = false) => {
+    if (!worker || reset) {
       worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
       const FFmpeg = wrap<WorkerAPI>(worker)
       // @ts-ignore
@@ -31,7 +31,7 @@ export async function convert(
   filename: string,
   { asm = false, ...opts }: Options
 ) {
-  const api = await getAPI()
+  const api = await getAPI(true)
 
   if (asm) {
     return api.convertAsm(data, filename, opts)
