@@ -43,7 +43,7 @@ export interface Metric {
   format: string
   videoCodec: string
   audioCodec: string
-  wasm?: boolean
+  wasm: boolean
   index: number
 }
 
@@ -95,7 +95,8 @@ class FFmpeg {
     data: ArrayBuffer,
     filename: string,
     opts: ConvertOptions,
-    id: number
+    id: number,
+    wasm: boolean
   ) => {
     try {
       const start = performance.now()
@@ -117,6 +118,7 @@ class FFmpeg {
         videoCodec: opts.videoEncoder,
         audioCodec: opts.audioEncoder,
         index: id,
+        wasm,
       }
 
       return { data: result.buffer as ArrayBuffer, metrics: runtimeMetrics }
@@ -137,7 +139,7 @@ class FFmpeg {
   ) => {
     const wasm = await this.wasm
 
-    return this._convert(wasm, data, filename, opts, id)
+    return this._convert(wasm, data, filename, opts, id, true)
   }
 
   public convertAsm = async (
@@ -148,7 +150,7 @@ class FFmpeg {
   ) => {
     const asm = await this.asm
 
-    return this._convert(asm, data, filename, opts, id)
+    return this._convert(asm, data, filename, opts, id, false)
   }
 
   public listEncoders = async () => {
