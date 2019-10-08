@@ -111,7 +111,7 @@ class FFmpeg {
         elapsedTime,
         file: filename,
         inputSize: data.byteLength,
-        outputSize: resultView.byteLength,
+        outputSize: result.byteLength,
         format: opts.outputFormat,
         videoCodec: opts.videoEncoder,
         audioCodec: opts.audioEncoder,
