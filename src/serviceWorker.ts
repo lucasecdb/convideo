@@ -26,9 +26,6 @@ skipWaiting()
 
 const networkFirstHandler = new NetworkFirst()
 
-// api
-registerRoute(/_c/, networkFirstHandler.handle.bind(networkFirstHandler))
-
 // google fonts
 const googleStylesheetsHandler = new StaleWhileRevalidate({
   cacheName: 'google-fonts-stylesheets',
