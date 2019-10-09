@@ -22,6 +22,10 @@ const getAPI = (() => {
 
   return async (reset = false) => {
     if (!worker || reset) {
+      if (worker && reset) {
+        worker.terminate()
+      }
+
       worker = new Worker('./worker', { name: 'ffmpeg-worker', type: 'module' })
       const FFmpeg = wrap<WorkerAPI>(worker)
       // @ts-ignore
