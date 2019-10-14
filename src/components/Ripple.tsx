@@ -10,7 +10,7 @@ import React, {
 import { MDCRippleAdapter, MDCRippleFoundation, util } from '@material/ripple'
 import { events, ponyfill } from '@material/dom'
 
-import useClassList from 'hooks/useClassList'
+import useClassList from '../hooks/useClassList'
 
 const useEventListener = (
   eventName: string,

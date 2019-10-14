@@ -6,7 +6,7 @@ import {
   cssClasses,
 } from '@material/floating-label'
 
-import useClassList from 'hooks/useClassList'
+import useClassList from '../hooks/useClassList'
 
 export interface FloatingLabelProps
   extends React.LabelHTMLAttributes<HTMLLabelElement> {

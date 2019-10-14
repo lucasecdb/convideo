@@ -25,3 +25,5 @@ yarn-error.log*
 node_modules
 /*.o
 /*.log
+public
+.cache

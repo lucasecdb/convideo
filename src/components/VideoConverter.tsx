@@ -1,12 +1,13 @@
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 
-import Button from './components/Button'
-import Checkbox from './components/Checkbox'
-import FormField from './components/FormField'
-import CircularProgress from './components/CircularProgress'
-import * as t from './components/Typography'
+import Button from './Button'
+import Checkbox from './Checkbox'
+import FormField from './FormField'
+import CircularProgress from './CircularProgress'
+import * as t from './Typography'
 import VideoPlayer from './VideoPlayer'
+import Icon from './Icon'
 import {
   Codec,
   Muxer,
@@ -14,9 +15,8 @@ import {
   listEncoders,
   listMuxers,
   retrieveMetrics,
-} from './ffmpeg'
-import Icon from './components/Icon'
-import { downloadFile } from 'utils'
+} from '../ffmpeg'
+import { downloadFile } from '../utils/index'
 
 import styles from './VideoConverter.module.scss'
 

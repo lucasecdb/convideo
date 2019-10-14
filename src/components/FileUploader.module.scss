@@ -1,4 +1,4 @@
-@import "./_variables.scss";
+@import "../styles/_variables.scss";
 @import "@material/theme/mixins";
 
 .containerDragActive::after{
@@ -31,6 +31,7 @@
 }
 
 .logo {
+  display: inline-block;
   width: 400px;
 
   @media (max-width: 600px) {

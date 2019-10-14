@@ -1,23 +1,21 @@
 import classNames from 'classnames'
-import React, { useEffect, useReducer } from 'react'
+import React, { useReducer } from 'react'
 
 import Dialog, {
   DialogActions,
   DialogContent,
   DialogTitle,
-} from './components/Dialog'
-import Button from './components/Button'
-import FileUploader from './FileUploader'
-import VideoConverter from './VideoConverter'
-import NotificationToasts from './NotificationToasts'
-import registerSW from './registerSW'
-import { notificationState } from './notification/index'
+} from '../components/Dialog'
+import Button from '../components/Button'
+import FileUploader from '../components/FileUploader'
+import VideoConverter from '../components/VideoConverter'
+import NotificationToasts from '../components/NotificationToasts'
 
-import styles from './App.module.scss'
+import styles from './index.module.scss'
 
 const FILE_SIZE_LIMIT = 200 * 1024 * 1024 // 200 Mb
 
-type State = {
+interface State {
   file: File | null
   errorTitle?: string
   errorMessage?: string
@@ -82,44 +80,11 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
   }
 }
 
-const App: React.FC = () => {
+const Index: React.FC = () => {
   const [
     { file, errorTitle, errorMessage, errorDialogOpen },
     dispatch,
   ] = useReducer(reducer, defaultState)
-
-  useEffect(() => {
-    let updateNotificationId: string | null = null
-    let installNotificationId: string | null = null
-
-    registerSW({
-      onUpdate: () => {
-        updateNotificationId = notificationState.addNotification({
-          message: 'A new update is available!',
-          actionText: 'Refresh',
-          onAction: () => {
-            window.location.reload()
-          },
-        })
-      },
-      onInstall: () => {
-        installNotificationId = notificationState.addNotification({
-          message: 'Ready to work offline',
-          actionText: 'Dismiss',
-        })
-      },
-    })
-
-    return () => {
-      if (updateNotificationId) {
-        notificationState.removeNotification(updateNotificationId)
-      }
-
-      if (installNotificationId) {
-        notificationState.removeNotification(installNotificationId)
-      }
-    }
-  }, [])
 
   const handleFile = async (inputFile: File) => {
     if (inputFile.size > FILE_SIZE_LIMIT) {
@@ -197,4 +162,4 @@ const App: React.FC = () => {
   )
 }
 
-export default App
+export default Index

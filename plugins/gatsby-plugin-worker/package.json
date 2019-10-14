@@ -1,0 +1,10 @@
+{
+  "name": "gatbsy-plugin-worker",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "dependencies": {
+    "webpack": "^4.41.1",
+    "worker-plugin": "^3.2.0"
+  }
+}

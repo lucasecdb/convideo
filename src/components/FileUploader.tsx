@@ -2,8 +2,9 @@ import classNames from 'classnames'
 import React from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import { ReactComponent as Logo } from './assets/logo-full-white.svg'
-import * as t from './components/Typography'
+import * as t from './Typography'
+import Logo from './Logo'
+
 import styles from './FileUploader.module.scss'
 
 interface Props {
@@ -53,7 +54,7 @@ const FileUploader: React.FC<Props> = ({
       )}
     >
       <input {...getInputProps()} className="dn" />
-      <Logo className={styles.logo} />
+      <Logo white className={styles.logo} />
       <t.Headline3 className="mt5 tc">
         Drag & drop or{' '}
         <button className={styles.selectButton} onClick={onClick}>

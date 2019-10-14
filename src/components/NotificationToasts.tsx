@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { Snackbar } from './components/Snackbar'
-import { notificationState } from './notification/index'
-import { NotificationEvent } from './notification/state'
+import { Snackbar } from './Snackbar'
+import { notificationState } from '../notification/index'
+import { NotificationEvent } from '../notification/state'
 
 const NotificationToasts: React.FunctionComponent = () => {
   const [notificationEvents, setNotifications] = useState<NotificationEvent[]>(
