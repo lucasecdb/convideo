@@ -8,6 +8,7 @@ module.exports = {
     title: 'Convideo',
     description: 'Simple video converter tool',
     siteUrl: 'https://convideo.app/',
+    author: 'Lucas Cordeiro',
   },
   plugins: [
     {
@@ -30,7 +31,7 @@ module.exports = {
     {
       resolve: 'gatsby-plugin-google-fonts',
       options: {
-        fonts: ['Roboto'],
+        fonts: ['Roboto:300,400,500,600', 'Material+Icons'],
       },
     },
     {
