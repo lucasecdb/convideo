@@ -10,6 +10,7 @@ import Button from '../components/Button'
 import FileUploader from '../components/FileUploader'
 import VideoConverter from '../components/VideoConverter'
 import NotificationToasts from '../components/NotificationToasts'
+import SEO from '../components/SEO'
 
 import styles from './index.module.scss'
 
@@ -101,6 +102,7 @@ const Index: React.FC = () => {
 
   return (
     <div className="flex flex-column min-vh-100">
+      <SEO />
       {file ? (
         <VideoConverter
           video={file}
