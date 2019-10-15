@@ -31,6 +31,13 @@ exports.onCreateWebpackConfig = ({ actions, getConfig }) => {
           },
         },
         {
+          test: /\.mem$/,
+          loader: 'file-loader',
+          options: {
+            name: '[name].[hash:5].[ext]',
+          },
+        },
+        {
           rules: config.module.rules,
         },
       ],
