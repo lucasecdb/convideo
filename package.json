@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "yarn run develop",
-    "develop": "NODE_OPTIONS='--max_old_space_size=2048' gatsby develop",
-    "build": "NODE_OPTIONS='--max_old_space_size=2048' gatsby build",
+    "develop": "gatsby develop",
+    "build": "gatsby build",
     "lint": "tsc --noEmit && eslint --ext ts,tsx ."
   },
   "dependencies": {
@@ -45,7 +45,8 @@
     "workbox-expiration": "^5.0.0-beta.1",
     "workbox-precaching": "^5.0.0-beta.1",
     "workbox-routing": "^5.0.0-beta.1",
-    "workbox-strategies": "^5.0.0-beta.1"
+    "workbox-strategies": "^5.0.0-beta.1",
+    "worker-plugin": "^3.2.0"
   },
   "devDependencies": {
     "@lucasecdb/eslint-config": "^0.5.0",

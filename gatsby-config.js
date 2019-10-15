@@ -61,20 +61,5 @@ module.exports = {
         background_color: '#121212',
       },
     },
-    'gatsby-plugin-worker',
   ],
-}
-
-exports.onCreateWebpackConfig = ({ actions }) => {
-  actions.setWebpackConfig({
-    module: {
-      rules: [
-        {
-          test: /.js$/,
-          include: path.resolve(__dirname, 'lib'),
-          type: 'javascript/auto',
-        },
-      ],
-    },
-  })
 }
