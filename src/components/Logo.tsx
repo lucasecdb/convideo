@@ -1,30 +1,59 @@
+import { graphql, useStaticQuery } from 'gatsby'
 import React from 'react'
 
-import fullWhiteLogo from '../assets/logo-full-white.svg'
-import typeWhiteLogo from '../assets/logo-type-white.svg'
-import typeLogo from '../assets/logo-type.svg'
-import logo from '../assets/logo.svg'
-
 interface Props {
-  className: string
-  size: number
-  white: boolean
-  type: boolean
+  className?: string
+  size?: number
+  white?: boolean
+  type?: boolean
+  icon?: boolean
 }
 
-const Logo: React.FC<Props> = props => {
-  const { className = '', size = undefined, white, type } = props
+const Logo: React.FC<Props> = ({
+  className = '',
+  size = undefined,
+  white = false,
+  type = false,
+  icon = false,
+}) => {
+  const {
+    logo,
+    whiteLogo,
+    typeLogo,
+    typeWhiteLogo,
+    iconLogo,
+  } = useStaticQuery(graphql`
+    query {
+      iconLogo: file(relativePath: { eq: "logo-icon.svg" }) {
+        publicURL
+      }
+      logo: file(relativePath: { eq: "logo.svg" }) {
+        publicURL
+      }
+      whiteLogo: file(relativePath: { eq: "logo-white.svg" }) {
+        publicURL
+      }
+      typeLogo: file(relativePath: { eq: "logo-type.svg" }) {
+        publicURL
+      }
+      typeWhiteLogo: file(relativePath: { eq: "logo-type-white.svg" }) {
+        publicURL
+      }
+    }
+  `)
 
-  let url = logo
+  let image = logo
 
   if (white) {
     if (type) {
-      url = typeWhiteLogo
+      image = typeWhiteLogo
     } else {
-      url = fullWhiteLogo
+      image = whiteLogo
     }
   } else if (type) {
-    url = typeLogo
+    image = typeLogo
+  } else if (icon) {
+    image = iconLogo
   }
 
   return (
@@ -32,7 +61,7 @@ const Logo: React.FC<Props> = props => {
       className={className}
       width={size}
       height={size}
-      src={url}
+      src={image.publicURL}
       alt="Convideo"
     />
   )
