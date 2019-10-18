@@ -1,8 +1,6 @@
 import './src/styles/global.scss'
 import { notificationState } from './src/notification/index'
 
-export const registerServiceWorker = () => true
-
 export const onServiceWorkerInstalled = () => {
   notificationState.addNotification({
     message: 'Ready to work offline',

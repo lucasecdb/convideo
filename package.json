@@ -30,6 +30,7 @@
     "gatsby-image": "^2.2.29",
     "gatsby-plugin-google-fonts": "^1.0.1",
     "gatsby-plugin-manifest": "^2.2.21",
+    "gatsby-plugin-offline": "^3.0.16",
     "gatsby-plugin-react-helmet": "^3.1.11",
     "gatsby-plugin-sass": "^2.1.18",
     "gatsby-plugin-sharp": "^2.2.29",
@@ -41,12 +42,6 @@
     "react-dropzone": "^10.1.8",
     "react-helmet": "^6.0.0-beta",
     "uuid": "^3.3.3",
-    "workbox-cacheable-response": "^5.0.0-beta.1",
-    "workbox-core": "^5.0.0-beta.1",
-    "workbox-expiration": "^5.0.0-beta.1",
-    "workbox-precaching": "^5.0.0-beta.1",
-    "workbox-routing": "^5.0.0-beta.1",
-    "workbox-strategies": "^5.0.0-beta.1",
     "worker-plugin": "^3.2.0"
   },
   "devDependencies": {
