@@ -4,7 +4,7 @@
 const path = require('path')
 const WorkerPlugin = require('worker-plugin')
 
-exports.onCreateWebpackConfig = ({ actions, getConfig }) => {
+exports.onCreateWebpackConfig = ({ actions, getConfig, plugins }) => {
   const config = getConfig()
 
   const libPath = path.resolve(__dirname, 'lib')
@@ -51,7 +51,23 @@ exports.onCreateWebpackConfig = ({ actions, getConfig }) => {
     }),
   ]
 
-  config.node.fs = 'empty'
+  if (config.optimization) {
+    config.optimization.minimizer = [
+      plugins.minifyJs({ test: /(!lib\/.*)/ }),
+      ...config.optimization.minimizer,
+    ]
+  }
+
+  config.node = {
+    module: 'empty',
+    dgram: 'empty',
+    dns: 'mock',
+    fs: 'empty',
+    http2: 'empty',
+    net: 'empty',
+    tls: 'empty',
+    child_process: 'empty',
+  }
 
   actions.replaceWebpackConfig(config)
 }
