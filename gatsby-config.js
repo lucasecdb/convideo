@@ -76,12 +76,16 @@ module.exports = {
               // google stylesheets handler
               urlPattern: /^https:\/\/fonts\.googleapis\.com/,
               handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'google-fonts-stylesheets',
+              },
             },
             {
               // google web fonts handler
               urlPattern: /^https:\/\/fonts\.gstatic\.com/,
               handler: 'CacheFirst',
               options: {
+                cacheName: 'google-fonts-webfonts',
                 cacheableResponse: { statuses: [0, 200] },
                 expiration: {
                   maxEntries: 20,
@@ -95,6 +99,7 @@ module.exports = {
               urlPattern: IMAGE_REGEX,
               handler: 'CacheFirst',
               options: {
+                cacheName: 'images',
                 expiration: {
                   maxEntries: 60,
                   // cache for 30 days
@@ -108,6 +113,9 @@ module.exports = {
                 process.env.NODE_ENV === 'development'
                   ? 'NetworkOnly'
                   : 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'static-resources',
+              },
             },
             process.env.NODE_ENV === 'development' && {
               urlPattern: /(__webpack_hmr|hot-update)/,
