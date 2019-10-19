@@ -58,16 +58,5 @@ exports.onCreateWebpackConfig = ({ actions, getConfig, plugins }) => {
     ]
   }
 
-  config.node = {
-    module: 'empty',
-    dgram: 'empty',
-    dns: 'mock',
-    fs: 'empty',
-    http2: 'empty',
-    net: 'empty',
-    tls: 'empty',
-    child_process: 'empty',
-  }
-
   actions.replaceWebpackConfig(config)
 }
