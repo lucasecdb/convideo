@@ -182,6 +182,7 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   -s MODULARIZE=1 \
   -s INVOKE_RUN=0 \
   -s EXPORT_NAME=\"ffmpeg\" \
+  -s ENVIRONMENT='web,worker' \
   --std=c++17 \
   -x c++ \
   -I ${PREFIX}/include \
