@@ -55,6 +55,7 @@ module.exports = {
         workboxConfig: {
           cacheId: 'convideo',
           skipWaiting: true,
+          offlineGoogleAnalytics: true,
           runtimeCaching: [
             {
               // google stylesheets handler
@@ -111,6 +112,14 @@ module.exports = {
             },
           ].filter(Boolean),
         },
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-google-analytics',
+      options: {
+        trackingId: 'UA-149125237-2',
+        cookieDomain: 'convideo.app',
+        respectDNT: true,
       },
     },
   ],
