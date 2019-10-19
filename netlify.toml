@@ -2,3 +2,7 @@
   base    = "."
   command = "yarn build"
   publish = "public"
+
+[[redirects]]
+  from = "/manifest.json"
+  to = "/manifest.webmanifest"
