@@ -5,7 +5,7 @@ import { MDCNotchedOutlineAdapter } from '@material/notched-outline/adapter'
 import { MDCFloatingLabelFoundation } from '@material/floating-label/foundation'
 const { cssClasses } = MDCNotchedOutlineFoundation
 
-import useClassList from 'hooks/useClassList'
+import useClassList from '../hooks/useClassList'
 
 export interface NotchedOutlineProps extends React.HTMLProps<HTMLDivElement> {
   className?: string

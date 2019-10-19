@@ -3,7 +3,7 @@ import classNames from 'classnames'
 import { MDCLineRippleFoundation } from '@material/line-ripple/foundation'
 import { MDCLineRippleAdapter } from '@material/line-ripple/adapter'
 
-import useClassList from 'hooks/useClassList'
+import useClassList from '../hooks/useClassList'
 
 export interface LineRippleProps extends React.HTMLProps<HTMLDivElement> {
   className?: string

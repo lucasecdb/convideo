@@ -1,0 +1,47 @@
+$breakpoint-not-small: 'screen and (min-width: 600px)' !default;
+$breakpoint-medium: 'screen and (min-width: 600px) and (max-width: 900px)' !default;
+$breakpoint-large: 'screen and (min-width: 900px)' !default;
+
+@import "tachyons-sass/tachyons.scss";
+
+@import "./_variables.scss";
+
+@import "@material/button/mdc-button.scss";
+@import "@material/card/mdc-card.scss";
+@import "@material/checkbox/mdc-checkbox.scss";
+@import "@material/dialog/mdc-dialog.scss";
+@import "@material/fab/mdc-fab.scss";
+@import "@material/form-field/mdc-form-field.scss";
+@import "@material/icon-button/mdc-icon-button.scss";
+@import "@material/ripple/mdc-ripple.scss";
+@import "@material/snackbar/mdc-snackbar.scss";
+@import "@material/typography/mdc-typography.scss";
+
+@import "@material/theme/mixins";
+
+@import "./_overrides.scss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100;
+  font-size: 16px;
+  @include mdc-theme-prop(background-color, background);
+  @include mdc-theme-prop(color, text-primary-on-background);
+}
+
+body {
+  font-family: Roboto, 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

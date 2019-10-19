@@ -3,7 +3,7 @@ import { MDCSnackbarAdapter } from '@material/snackbar/adapter'
 import React, { useEffect, useRef } from 'react'
 import classNames from 'classnames'
 
-import useClassList from 'hooks/useClassList'
+import useClassList from '../hooks/useClassList'
 
 export interface Props {
   message: string
@@ -89,13 +89,13 @@ export const Snackbar: React.FC<Props> = ({
 
   useEffect(() => {
     if (timeoutMs) {
-      this.foundation.setTimeoutMs(timeoutMs)
+      foundationRef.current.setTimeoutMs(timeoutMs)
     }
   }, [timeoutMs])
 
   useEffect(() => {
     if (closeOnEscape) {
-      this.foundation.setCloseOnEscape(closeOnEscape)
+      foundationRef.current.setCloseOnEscape(closeOnEscape)
     }
   }, [closeOnEscape])
 

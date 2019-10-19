@@ -1,0 +1,40 @@
+@import "../styles/_variables.scss";
+@import "@material/theme/mixins";
+
+.containerDragActive::after{
+  content: ' ';
+  position: absolute;
+  margin: 1rem;
+  top: 0;
+  left: 0;
+  width: calc(100% - 2rem - 4px);
+  height: calc(100% - 2rem - 4px);
+  border-width: 2px;
+  border-style: dashed;
+  @include mdc-theme-prop(border-color, primary);
+}
+
+.selectButton {
+  display: inline;
+  background: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 500;
+  @include mdc-theme-prop(color, primary);
+  cursor: pointer;
+}
+
+.selectButton:hover {
+  text-decoration: underline;
+}
+
+.logo {
+  display: inline-block;
+  width: 400px;
+
+  @media (max-width: 600px) {
+    width: 320px;
+  }
+}
