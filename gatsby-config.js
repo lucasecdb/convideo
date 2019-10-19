@@ -42,23 +42,7 @@ module.exports = {
       options: {
         short_name: 'Convideo',
         name: 'Convideo',
-        icons: [
-          {
-            src: 'favicon.ico',
-            sizes: '48x48 32x32 24x24 16x16',
-            type: 'image/x-icon',
-          },
-          {
-            src: 'logo192.png',
-            type: 'image/png',
-            sizes: '192x192',
-          },
-          {
-            src: 'logo512.png',
-            type: 'image/png',
-            sizes: '512x512',
-          },
-        ],
+        icon: 'src/assets/logo-icon.svg',
         start_url: '.',
         display: 'standalone',
         theme_color: '#121212',
