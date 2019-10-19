@@ -2,7 +2,3 @@
   base    = "."
   command = "yarn build"
   publish = "public"
-
-[[redirects]]
-  from = "/service-worker.js"
-  to = "/sw.js"
