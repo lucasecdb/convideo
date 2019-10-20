@@ -164,9 +164,15 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
       return
     }
 
+    const videoNameParts = video.name.split('.')
+    const filenameWithoutExtension = videoNameParts
+      .splice(0, videoNameParts.length - 1)
+      .join('.')
+
     const [defaultExtension] = format.extensions
-    const outputFilename =
-      'output' + (defaultExtension.length ? `.${defaultExtension}` : '')
+    const outputFilename = defaultExtension.length
+      ? `${filenameWithoutExtension}.${defaultExtension}`
+      : filenameWithoutExtension
 
     downloadFile(outputFilename, convertedVideoBuffer)
   }
