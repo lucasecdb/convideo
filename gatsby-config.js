@@ -119,7 +119,6 @@ module.exports = {
       options: {
         trackingId: 'UA-149125237-2',
         cookieDomain: 'convideo.app',
-        respectDNT: true,
       },
     },
   ],
