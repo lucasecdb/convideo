@@ -7,6 +7,7 @@ export interface ConvertOptions {
   outputFormat: string
   videoEncoder: string
   audioEncoder: string
+  extraOptions: string[]
 }
 
 interface Vector<T> {
