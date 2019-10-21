@@ -14,7 +14,7 @@ import SEO from '../components/SEO'
 
 import styles from './index.module.scss'
 
-const FILE_SIZE_LIMIT = 200 * 1024 * 1024 // 200 Mb
+const FILE_SIZE_LIMIT = 512 * 1024 * 1024 // 512 Mb
 
 interface State {
   file: File | null
@@ -60,7 +60,7 @@ const reducer: React.Reducer<State, Action> = (state, action) => {
         ...state,
         errorTitle: 'File too large',
         errorMessage:
-          'The size of the uploaded file exceeds our limit (200 Mb)',
+          'The size of the uploaded file exceeds our limit (512 Mb)',
         errorDialogOpen: true,
       }
     }
