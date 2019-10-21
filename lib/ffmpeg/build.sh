@@ -178,6 +178,7 @@ test -n "$SKIP_BUILD" || (
 )
 
 EMSCRIPTEN_COMMON_ARGS="--bind \
+  -O3 \
   --closure 1 \
   -s MODULARIZE=1 \
   -s INVOKE_RUN=0 \
@@ -202,7 +203,6 @@ echo "=========================="
     echo "******************************************"
     mkdir -p asm
     emcc \
-      -O3 \
       $EMSCRIPTEN_COMMON_ARGS \
       -s WASM=0 \
       -s ALLOW_MEMORY_GROWTH=1 \
@@ -215,7 +215,6 @@ echo "=========================="
     echo "Generating wasm bindings"
     echo "******************************************"
     emcc \
-      $OPTIMIZE \
       $EMSCRIPTEN_COMMON_ARGS \
       -s ALLOW_MEMORY_GROWTH=1 \
       -o $PROGRAM_NAME.js
