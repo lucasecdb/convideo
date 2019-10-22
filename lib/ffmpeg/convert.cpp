@@ -7,6 +7,7 @@ extern "C" {
 #include "libavfilter/buffersink.h"
 #include "libavfilter/buffersrc.h"
 #include "libavutil/opt.h"
+#include "libavutil/log.h"
 #include "libavutil/pixdesc.h"
 #include "libavutil/display.h"
 #include "libavutil/eval.h"
@@ -55,6 +56,28 @@ std::vector<AVOutputFormat> list_muxers() {
   return muxer_list;
 }
 
+std::vector<AVOption> list_codec_options(int codec_id) {
+  std::vector<AVOption> option_list;
+
+  const AVCodec* codec = avcodec_find_encoder((AVCodecID)codec_id);
+
+  if (codec == NULL || !codec->priv_class) {
+    return option_list;
+  }
+
+  const AVClass *codec_class = codec->priv_class;
+
+  const AVOption *opt = NULL;
+
+  while ((opt = av_opt_next(&codec_class, opt))) {
+    if (opt->type == AV_OPT_TYPE_CONST) continue;
+
+    option_list.push_back(*opt);
+  }
+
+  return option_list;
+}
+
 string get_avformat_name(const AVOutputFormat& format) {
   return format.name;
 }
@@ -71,9 +94,51 @@ string get_avformat_extensions(const AVOutputFormat& format) {
   return format.extensions;
 }
 
+string get_avoption_name(const AVOption& opt) {
+  return opt.name;
+}
+
+string get_avoption_help(const AVOption& opt) {
+  return opt.help;
+}
+
+string get_avoption_unit(const AVOption& opt) {
+  return opt.unit;
+}
+
+union AVOptionDefaultValue {
+  int64_t i64;
+  double dbl;
+  const char* str;
+  AVRational q;
+};
+
+AVOptionDefaultValue get_avoption_default_val(const AVOption& opt) {
+  if (opt.default_val.i64) {
+    return {.i64 = opt.default_val.i64};
+  } else if (opt.default_val.dbl) {
+    return {.dbl = opt.default_val.dbl};
+  } else if (opt.default_val.str) {
+    return {.str = opt.default_val.str};
+  } else {
+    return {.q = opt.default_val.q};
+  }
+}
+
+string get_avoption_default_val_str(const AVOptionDefaultValue& default_val) {
+  return default_val.str;
+}
+
 EMSCRIPTEN_BINDINGS(ffmpeg) {
   register_vector<AVCodec>("VectorAVCodec");
   register_vector<AVOutputFormat>("VectorAVOutputFormat");
+  register_vector<AVOption>("VectorAVOption");
+
+  class_<AVOptionDefaultValue>("AVOptionDefaultValue")
+    .property("i64", &AVOptionDefaultValue::i64)
+    .property("dbl", &AVOptionDefaultValue::dbl)
+    .property("str", &get_avoption_default_val_str)
+    .property("q", &AVOptionDefaultValue::q);
 
   enum_<AVMediaType>("AVMediaType")
     .value("AVMEDIA_TYPE_UNKNOWN", AVMEDIA_TYPE_UNKNOWN)
@@ -83,6 +148,10 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .value("AVMEDIA_TYPE_SUBTITLE", AVMEDIA_TYPE_SUBTITLE)
     .value("AVMEDIA_TYPE_ATTACHMENT", AVMEDIA_TYPE_ATTACHMENT)
     .value("AVMEDIA_TYPE_NB", AVMEDIA_TYPE_NB);
+
+  value_object<AVRational>("AVRational")
+    .field("num", &AVRational::num)
+    .field("den", &AVRational::den);
 
   class_<AVCodec>("AVCodec")
     .property("id", &AVCodec::id)
@@ -98,6 +167,34 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
     .property("extensions", &get_avformat_extensions)
     .property("audio_codec", &AVOutputFormat::audio_codec)
     .property("video_codec", &AVOutputFormat::video_codec);
+
+  class_<AVOption>("AVOption")
+    .property("name", &get_avoption_name)
+    .property("help", &get_avoption_help)
+    .property("unit", &get_avoption_unit)
+    .property("offset", &AVOption::offset)
+    .property("type", &AVOption::type)
+    /*union {
+        int64_t i64;
+        double dbl;
+        const char *str;
+        AVRational q;
+    } default_val;*/
+    .property("default_val", &get_avoption_default_val)
+    .property("min", &AVOption::min)
+    .property("max", &AVOption::max)
+    .property("flags", &AVOption::flags);
+
+  constant("AV_OPT_FLAG_ENCODING_PARAM", AV_OPT_FLAG_ENCODING_PARAM);
+  constant("AV_OPT_FLAG_DECODING_PARAM", AV_OPT_FLAG_DECODING_PARAM);
+  constant("AV_OPT_FLAG_AUDIO_PARAM", AV_OPT_FLAG_AUDIO_PARAM);
+  constant("AV_OPT_FLAG_VIDEO_PARAM", AV_OPT_FLAG_VIDEO_PARAM);
+  constant("AV_OPT_FLAG_SUBTITLE_PARAM", AV_OPT_FLAG_SUBTITLE_PARAM);
+  constant("AV_OPT_FLAG_EXPORT", AV_OPT_FLAG_EXPORT);
+  constant("AV_OPT_FLAG_READONLY", AV_OPT_FLAG_READONLY);
+  constant("AV_OPT_FLAG_BSF_PARAM", AV_OPT_FLAG_BSF_PARAM);
+  constant("AV_OPT_FLAG_FILTERING_PARAM", AV_OPT_FLAG_FILTERING_PARAM);
+  constant("AV_OPT_FLAG_DEPRECATED", AV_OPT_FLAG_DEPRECATED);
 
   constant("AV_CODEC_CAP_DRAW_HORIZ_BAND", AV_CODEC_CAP_DRAW_HORIZ_BAND);
   constant("AV_CODEC_CAP_DR1", AV_CODEC_CAP_DR1);
@@ -121,6 +218,28 @@ EMSCRIPTEN_BINDINGS(ffmpeg) {
 
   function("list_encoders", &list_encoders);
   function("list_muxers", &list_muxers);
+  function("list_codec_options", &list_codec_options);
+
+  enum_<AVOptionType>("AVOptionType")
+    .value("AV_OPT_TYPE_FLAGS", AV_OPT_TYPE_FLAGS)
+    .value("AV_OPT_TYPE_INT", AV_OPT_TYPE_INT)
+    .value("AV_OPT_TYPE_INT64", AV_OPT_TYPE_INT64)
+    .value("AV_OPT_TYPE_DOUBLE", AV_OPT_TYPE_DOUBLE)
+    .value("AV_OPT_TYPE_FLOAT", AV_OPT_TYPE_FLOAT)
+    .value("AV_OPT_TYPE_STRING", AV_OPT_TYPE_STRING)
+    .value("AV_OPT_TYPE_RATIONAL", AV_OPT_TYPE_RATIONAL)
+    .value("AV_OPT_TYPE_BINARY", AV_OPT_TYPE_BINARY)
+    .value("AV_OPT_TYPE_DICT", AV_OPT_TYPE_DICT)
+    .value("AV_OPT_TYPE_UINT64", AV_OPT_TYPE_UINT64)
+    .value("AV_OPT_TYPE_CONST", AV_OPT_TYPE_CONST)
+    .value("AV_OPT_TYPE_IMAGE_SIZE", AV_OPT_TYPE_IMAGE_SIZE)
+    .value("AV_OPT_TYPE_PIXEL_FMT", AV_OPT_TYPE_PIXEL_FMT)
+    .value("AV_OPT_TYPE_SAMPLE_FMT", AV_OPT_TYPE_SAMPLE_FMT)
+    .value("AV_OPT_TYPE_VIDEO_RATE", AV_OPT_TYPE_VIDEO_RATE)
+    .value("AV_OPT_TYPE_DURATION", AV_OPT_TYPE_DURATION)
+    .value("AV_OPT_TYPE_COLOR", AV_OPT_TYPE_COLOR)
+    .value("AV_OPT_TYPE_CHANNEL_LAYOUT", AV_OPT_TYPE_CHANNEL_LAYOUT)
+    .value("AV_OPT_TYPE_BOOL", AV_OPT_TYPE_BOOL);
 
 #pragma region
   enum_<AVCodecID>("AVCodecID")

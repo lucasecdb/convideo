@@ -10,7 +10,7 @@ export interface ConvertOptions {
   extraOptions?: string[]
 }
 
-interface Vector<T> {
+export interface Vector<T> {
   get(index: number): T
   size(): number
 }
@@ -21,6 +21,18 @@ export interface Codec {
   long_name: string
   capabilities: number
   type: EnumValue
+}
+
+export interface CodecOption {
+  name: string
+  help: string
+  unit: string
+  offset: number
+  type: EnumValue
+  min: number
+  max: number
+  flags: number
+  default_val: any
 }
 
 export interface Muxer {
@@ -36,7 +48,9 @@ export interface FFModule extends EmscriptenModule {
   free_result(): void
   convert(videoData: Uint8ClampedArray, opts: ConvertOptions): Uint8Array
   list_encoders(): Vector<Codec>
+  list_codec_options(id: number): Vector<CodecOption>
   list_muxers(): Vector<Muxer>
+
   AV_CODEC_CAP_DRAW_HORIZ_BAND: number
   AV_CODEC_CAP_DR1: number
   AV_CODEC_CAP_TRUNCATED: number
@@ -56,6 +70,39 @@ export interface FFModule extends EmscriptenModule {
   AV_CODEC_CAP_HARDWARE: number
   AV_CODEC_CAP_HYBRID: number
   AV_CODEC_CAP_ENCODER_REORDERED_OPAQUE: number
+
+  AV_OPT_FLAG_ENCODING_PARAM: number
+  AV_OPT_FLAG_DECODING_PARAM: number
+  AV_OPT_FLAG_AUDIO_PARAM: number
+  AV_OPT_FLAG_VIDEO_PARAM: number
+  AV_OPT_FLAG_SUBTITLE_PARAM: number
+  AV_OPT_FLAG_EXPORT: number
+  AV_OPT_FLAG_READONLY: number
+  AV_OPT_FLAG_BSF_PARAM: number
+  AV_OPT_FLAG_FILTERING_PARAM: number
+  AV_OPT_FLAG_DEPRECATED: number
+
+  AVOptionType: {
+    AV_OPT_TYPE_FLAGS: EnumValue
+    AV_OPT_TYPE_INT: EnumValue
+    AV_OPT_TYPE_INT64: EnumValue
+    AV_OPT_TYPE_DOUBLE: EnumValue
+    AV_OPT_TYPE_FLOAT: EnumValue
+    AV_OPT_TYPE_STRING: EnumValue
+    AV_OPT_TYPE_RATIONAL: EnumValue
+    AV_OPT_TYPE_BINARY: EnumValue
+    AV_OPT_TYPE_DICT: EnumValue
+    AV_OPT_TYPE_UINT64: EnumValue
+    AV_OPT_TYPE_CONST: EnumValue
+    AV_OPT_TYPE_IMAGE_SIZE: EnumValue
+    AV_OPT_TYPE_PIXEL_FMT: EnumValue
+    AV_OPT_TYPE_SAMPLE_FMT: EnumValue
+    AV_OPT_TYPE_VIDEO_RATE: EnumValue
+    AV_OPT_TYPE_DURATION: EnumValue
+    AV_OPT_TYPE_COLOR: EnumValue
+    AV_OPT_TYPE_CHANNEL_LAYOUT: EnumValue
+    AV_OPT_TYPE_BOOL: EnumValue
+  }
 }
 
 export default function(opts: Partial<EmscriptenModule>): FFModule
