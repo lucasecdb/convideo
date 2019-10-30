@@ -1,6 +1,6 @@
+import { Snackbar } from '@lucasecdb/rmdc'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { Snackbar } from './Snackbar'
 import { notificationState } from '../notification/index'
 import { NotificationEvent } from '../notification/state'
 

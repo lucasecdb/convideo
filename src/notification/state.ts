@@ -1,7 +1,7 @@
 import * as uuid from 'uuid'
 
 import Emitter from './event'
-import { Props as SnackbarProps } from '../components/Snackbar'
+import { SnackbarProps } from '@lucasecdb/rmdc'
 
 export interface NotificationMessage {
   message: string

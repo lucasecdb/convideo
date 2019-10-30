@@ -1,12 +1,13 @@
-import classNames from 'classnames'
-import React, { useReducer } from 'react'
-
-import Dialog, {
+import {
+  Button,
+  Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-} from '../components/Dialog'
-import Button from '../components/Button'
+} from '@lucasecdb/rmdc'
+import classNames from 'classnames'
+import React, { useReducer } from 'react'
+
 import FileUploader from '../components/FileUploader'
 import VideoConverter from '../components/VideoConverter'
 import NotificationToasts from '../components/NotificationToasts'

@@ -1,13 +1,16 @@
+import {
+  Button,
+  Caption,
+  Checkbox,
+  CircularProgress,
+  FormField,
+  Icon,
+  Subtitle1,
+} from '@lucasecdb/rmdc'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 
-import Button from './Button'
-import Checkbox from './Checkbox'
-import FormField from './FormField'
-import CircularProgress from './CircularProgress'
-import * as t from './Typography'
 import VideoPlayer from './VideoPlayer'
-import Icon from './Icon'
 import {
   Codec,
   Muxer,
@@ -205,7 +208,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
     return (
       <div className="flex flex-column items-center justify-center min-vh-100">
         <CircularProgress size={48} />
-        <t.Subtitle1 className="mt3">Loading codecs and formats</t.Subtitle1>
+        <Subtitle1 className="mt3">Loading codecs and formats</Subtitle1>
       </div>
     )
   }
@@ -227,10 +230,10 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
             'flex flex-column ml0 mt3 mt0-l ml3-l'
           )}
         >
-          <t.Subtitle1>Conversion options</t.Subtitle1>
+          <Subtitle1>Conversion options</Subtitle1>
 
           <label className="flex flex-column mt3">
-            <t.Caption>Format</t.Caption>
+            <Caption>Format</Caption>
             <select
               value={selectedFormat}
               onChange={evt => setSelectedFormat(evt.target.value)}
@@ -244,7 +247,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           </label>
 
           <label className="flex flex-column mt3">
-            <t.Caption>Video Codec</t.Caption>
+            <Caption>Video Codec</Caption>
             <select
               value={selectedVideoCodec}
               onChange={evt => setSelectedVideoCodec(evt.target.value)}
@@ -258,7 +261,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
           </label>
 
           <label className="flex flex-column mt3">
-            <t.Caption>Audio Codec</t.Caption>
+            <Caption>Audio Codec</Caption>
             <select
               value={selectedAudioCodec}
               onChange={evt => setSelectedAudioCodec(evt.target.value)}
@@ -286,7 +289,7 @@ const VideoConverter: React.FC<Props> = ({ video, onClose }) => {
                   : 'keyboard_arrow_down'
               }
             />
-            <t.Caption>Advanced options</t.Caption>
+            <Caption>Advanced options</Caption>
           </button>
 
           <div

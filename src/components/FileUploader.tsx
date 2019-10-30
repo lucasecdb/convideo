@@ -1,8 +1,8 @@
+import { Headline3 } from '@lucasecdb/rmdc'
 import classNames from 'classnames'
 import React from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import * as t from './Typography'
 import Logo from './Logo'
 
 import styles from './FileUploader.module.scss'
@@ -55,12 +55,12 @@ const FileUploader: React.FC<Props> = ({
     >
       <input {...getInputProps()} className="dn" />
       <Logo white className={styles.logo} />
-      <t.Headline3 className="mt5 tc">
+      <Headline3 className="mt5 tc">
         Drag & drop or{' '}
         <button className={styles.selectButton} onClick={onClick}>
           select a video
         </button>
-      </t.Headline3>
+      </Headline3>
     </div>
   )
 }
