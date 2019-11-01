@@ -1270,9 +1270,9 @@
     eslint-plugin-react-hooks "^2.0.1"
 
 "@lucasecdb/rmdc@^0.1.1":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@lucasecdb/rmdc/-/rmdc-0.1.3.tgz#547df63124d306e31d1aabfdeab55a6ac5d38220"
-  integrity sha512-ROkA3XXnGQHrjYw7m54InVkmbiWGTUQ3COElm+ccB2bdH0oWLAC9+aROKu8zpBO1kcHRyN+HwfkGImtGDx7L+w==
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@lucasecdb/rmdc/-/rmdc-0.1.5.tgz#e9b10ecf5a0634c6c006e1069e683c2370b01fe1"
+  integrity sha512-wb6hWc28l/HW4ZQ/8SzETakVcMX5E04Yp9NUOEaM0ixeg7heg/G3j4Vku7HxGxkwVkmRZ/SPCy1Ir3Jsl/FkdQ==
   dependencies:
     "@material/button" "^3.1.0"
     "@material/card" "^3.1.0"
