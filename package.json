@@ -5,7 +5,9 @@
   "scripts": {
     "start": "yarn run develop",
     "develop": "gatsby develop",
-    "build": "gatsby build --no-uglify && cp public/sw.js public/service-worker.js",
+    "build": "run-s build:gatsby build:copy-sw",
+    "build:gatsby": "gatsby build --no-uglify",
+    "build:copy-sw": "cp public/sw.js public/service-worker.js",
     "lint": "tsc --noEmit && eslint --ext ts,tsx ."
   },
   "dependencies": {
@@ -46,6 +48,7 @@
     "dotenv-expand": "4.2.0",
     "eslint": "^6.2.2",
     "node-sass": "^4.12.0",
+    "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
     "tachyons-sass": "^4.9.5",
     "typescript": "3.6.2"
