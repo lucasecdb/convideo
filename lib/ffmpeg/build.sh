@@ -178,7 +178,7 @@ test -n "$SKIP_BUILD" || (
 )
 
 EMSCRIPTEN_COMMON_ARGS="--bind \
-  -O3 \
+  ${OPTIMIZE} \
   --closure 1 \
   -s MODULARIZE=1 \
   -s INVOKE_RUN=0 \
@@ -193,6 +193,10 @@ EMSCRIPTEN_COMMON_ARGS="--bind \
   ${PREFIX}/lib/libmp3lame.so \
   ${PREFIX}/lib/libx264.so"
 
+KB=1024
+MB=$((KB * 1024))
+GB=$((MB * 1024))
+
 echo "=========================="
 echo "Generating bidings"
 echo "=========================="
@@ -205,7 +209,7 @@ echo "=========================="
     emcc \
       $EMSCRIPTEN_COMMON_ARGS \
       -s WASM=0 \
-      -s ALLOW_MEMORY_GROWTH=1 \
+      -s TOTAL_MEMORY=$GB \
       -s USE_CLOSURE_COMPILER=1 \
       -o asm/$PROGRAM_NAME.js
   fi
