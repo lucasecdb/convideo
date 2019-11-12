@@ -61,9 +61,9 @@ class FFmpeg {
   private get wasm() {
     if (!this._wasmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
-        import('../../../lib/ffmpeg/convert').then(
-          ({ default: defaultValue }) => resolve(defaultValue)
-        )
+        import(
+          '../../../lib/ffmpeg/convert'
+        ).then(({ default: defaultValue }) => resolve(defaultValue))
       }).then(instance => {
         this._wasmModule = initEmscriptenModule(instance, { wasmUrl })
 
@@ -77,9 +77,9 @@ class FFmpeg {
   private get asm() {
     if (!this._asmModule) {
       return new Promise<ModuleFactory<FFModule>>(resolve => {
-        import('../../../lib/ffmpeg/asm/convert').then(
-          ({ default: defaultValue }) => resolve(defaultValue)
-        )
+        import(
+          '../../../lib/ffmpeg/asm/convert'
+        ).then(({ default: defaultValue }) => resolve(defaultValue))
       }).then(instance => {
         this._asmModule = initEmscriptenModule(instance, { memUrl })
 
