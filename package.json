@@ -30,7 +30,7 @@
     "react-dom": "^16.9.0",
     "react-dropzone": "^10.1.8",
     "react-helmet": "^6.0.0-beta",
-    "uuid": "^3.3.3",
+    "uuid": "^8.2.0",
     "worker-plugin": "^3.2.0"
   },
   "devDependencies": {
