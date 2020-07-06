@@ -13595,10 +13595,10 @@ worker-farm@^1.7.0:
   dependencies:
     errno "~0.1.7"
 
-worker-plugin@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/worker-plugin/-/worker-plugin-3.2.0.tgz#ddae9f161b76fcbaacf8f54ecd037844584e43e7"
-  integrity sha512-W5nRkw7+HlbsEt3qRP6MczwDDISjiRj2GYt9+bpe8A2La00TmJdwzG5bpdMXhRt1qcWmwAvl1TiKaHRa+XDS9Q==
+worker-plugin@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/worker-plugin/-/worker-plugin-4.0.3.tgz#7c42e600d5931ad154d3d5f187a32446df64db0f"
+  integrity sha512-7hFDYWiKcE3yHZvemsoM9lZis/PzurHAEX1ej8PLCu818Rt6QqUAiDdxHPCKZctzmhqzPpcFSgvMCiPbtooqAg==
   dependencies:
     loader-utils "^1.1.0"
 
