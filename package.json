@@ -14,7 +14,7 @@
     "@lucasecdb/rmdc": "^0.1.1",
     "classnames": "^2.2.6",
     "comlink": "^4.0.2",
-    "gatsby": "^2.15.36",
+    "gatsby": "^2.23.22",
     "gatsby-image": "^2.2.29",
     "gatsby-plugin-google-analytics": "^2.3.10",
     "gatsby-plugin-google-fonts": "^1.0.1",
