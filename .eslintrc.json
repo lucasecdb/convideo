@@ -10,6 +10,7 @@
     "@typescript-eslint/camelcase": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
+    "@typescript-eslint/no-empty-function": "off",
     "jsx-a11y/media-has-caption": "off",
     "jsx-a11y/no-onchange": "off",
     "no-console": "off"
