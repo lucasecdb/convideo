@@ -3950,10 +3950,10 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-comlink@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.0.2.tgz#32016fe610dcb7f2a73aaaaa269ef1b29fec8db6"
-  integrity sha512-nLfo59BESda/NI3IFYNkEy2SIopH2W6Bt5uplek1IjAmBI0JJ78IE6GbZPfVL8Ux5TIMbCZnrU2cgubdhCUDnQ==
+comlink@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.3.0.tgz#80b3366baccd87897dab3638ebfcfae28b2f87c7"
+  integrity sha512-mu4KKKNuW8TvkfpW/H88HBPeILubBS6T94BdD1VWBXNXfiyqVtwUCVNO1GeNOBTsIswzsMjWlycYr+77F5b84g==
 
 comma-separated-tokens@^1.0.0:
   version "1.0.8"
