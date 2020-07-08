@@ -27,7 +27,7 @@
     "gatsby-source-filesystem": "^2.1.31",
     "gatsby-transformer-sharp": "^2.5.10",
     "react": "^16.13.1",
-    "react-dom": "^16.13.0",
+    "react-dom": "^16.13.1",
     "react-dropzone": "^10.1.8",
     "react-helmet": "^6.1.0",
     "uuid": "^8.2.0",
