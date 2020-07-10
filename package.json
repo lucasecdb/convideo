@@ -28,7 +28,7 @@
     "gatsby-transformer-sharp": "^2.5.11",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-dropzone": "^10.1.8",
+    "react-dropzone": "^11.0.1",
     "react-helmet": "^6.1.0",
     "uuid": "^8.2.0",
     "worker-plugin": "^4.0.3"
