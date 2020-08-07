@@ -20,18 +20,18 @@ const FileUploader: React.FC<Props> = ({
 }) => {
   const { isDragActive, getRootProps, getInputProps } = useDropzone({
     accept: 'video/*',
-    onDrop: (acceptedFiles, rejectedFiles) => {
-      const uploadedFiles = acceptedFiles.length + rejectedFiles.length
+    onDrop: (acceptedFiles, fileRejections) => {
+      const uploadedFiles = acceptedFiles.length + fileRejections.length
 
       if (uploadedFiles > 1) {
         onError('Select only one file at a time')
         return
       }
 
-      if (rejectedFiles.length > 0) {
-        const [file] = rejectedFiles
+      if (fileRejections.length > 0) {
+        const [fileRejection] = fileRejections
 
-        onError(`Invalid file format '${file.type}'`)
+        onError(`Invalid file format '${fileRejection.file.type}'`)
         return
       }
 
