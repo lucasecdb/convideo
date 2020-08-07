@@ -1,12 +1,12 @@
 import { graphql, useStaticQuery } from 'gatsby'
 import React from 'react'
-import { Helmet, MetaProps } from 'react-helmet'
+import { Helmet, HelmetProps } from 'react-helmet'
 
 interface Props {
   lang?: string
   title?: string
   description?: string
-  meta?: MetaProps[]
+  meta?: HelmetProps['meta']
 }
 
 const SEO: React.FC<Props> = ({
